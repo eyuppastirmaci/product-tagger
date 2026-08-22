@@ -96,8 +96,9 @@ class ProductController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(download.contentType()))
-                // Stored images never change once written; let the browser cache them
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic())
+                // Stored images never change once written; private keeps this
+                // cookie-protected content out of shared proxy caches
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePrivate().immutable())
                 .body(new InputStreamResource(download.content()));
     }
 

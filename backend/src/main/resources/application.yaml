@@ -19,6 +19,13 @@ spring:
       ddl-auto: validate
     open-in-view: false
 
+  cache:
+    type: caffeine
+    cache-names: catalog.category-tree, catalog.leaf-schema
+    caffeine:
+      # Catalog data only changes via migrations; the TTL is a safety net
+      spec: maximumSize=100,expireAfterWrite=12h
+
   rabbitmq:
     host: localhost
     port: ${RABBITMQ_PORT:5672}

@@ -4,6 +4,7 @@ import com.producttagger.backend.catalog.domain.Category;
 import com.producttagger.backend.catalog.domain.CategoryRepository;
 import com.producttagger.backend.catalog.domain.CategorySchema;
 import com.producttagger.backend.catalog.domain.CategorySchemaRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,9 @@ public class CatalogService {
         this.schemas = schemas;
     }
 
+    // Categories only change via migrations today; if an admin write path is
+    // ever added, it must evict these caches with @CacheEvict(allEntries = true)
+    @Cacheable(CatalogCaches.CATEGORY_TREE)
     public List<CategoryNode> categoryTree() {
         List<Category> all = categories.findAll();
 
@@ -44,15 +48,18 @@ public class CatalogService {
     /**
      * Resolves a leaf's active schema; non-leaf categories carry no schema.
      */
+    @Cacheable(cacheNames = CatalogCaches.LEAF_SCHEMA, key = "#code")
     @Transactional(readOnly = true)
-    public CategorySchema activeLeafSchema(String code) {
+    public SchemaSnapshot activeLeafSchema(String code) {
         Category category = categoryByCode(code);
 
         if (!category.isLeaf()) {
             throw new IllegalArgumentException("Category '%s' is not a leaf category".formatted(code));
         }
 
-        return activeSchemaOf(category.getId());
+        CategorySchema schema = activeSchemaOf(category.getId());
+
+        return new SchemaSnapshot(code, schema.getVersion(), schema.getSchema());
     }
 
     public Category categoryByCode(String code) {

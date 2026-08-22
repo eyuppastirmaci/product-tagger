@@ -1,7 +1,7 @@
 package com.producttagger.backend.catalog.api;
 
 import com.producttagger.backend.catalog.application.CatalogService;
-import com.producttagger.backend.catalog.domain.CategorySchema;
+import com.producttagger.backend.catalog.application.SchemaSnapshot;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +28,8 @@ class CategoryController {
 
     @GetMapping("/{code}/schema")
     CategorySchemaResponse schema(@PathVariable String code) {
-        CategorySchema schema = catalog.activeLeafSchema(code);
+        SchemaSnapshot schema = catalog.activeLeafSchema(code);
 
-        return new CategorySchemaResponse(code, schema.getVersion(), schema.getSchema());
+        return new CategorySchemaResponse(schema.categoryCode(), schema.version(), schema.schema());
     }
 }
