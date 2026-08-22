@@ -1,9 +1,10 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideChevronsUpDown, LucideInbox, LucideLayoutGrid, LucideUpload } from '@lucide/angular';
 import { filter, map } from 'rxjs';
+import { ProductEvents } from '../api/product-events.service';
 import { AuthService } from '../state/auth.service';
 import { ReviewStore } from '../state/review-store';
 import { ThemeService } from '../theme/theme.service';
@@ -28,8 +29,9 @@ import { ThemeToggle } from './theme-toggle';
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
-export class Shell {
+export class Shell implements OnDestroy {
   private readonly router = inject(Router);
+  private readonly productEvents = inject(ProductEvents);
 
   protected readonly theme = inject(ThemeService);
   protected readonly auth = inject(AuthService);
@@ -47,7 +49,13 @@ export class Shell {
   );
 
   constructor() {
+    // The shell only renders authenticated, so the SSE stream can open here
+    this.productEvents.connect();
     this.reviewStore.refresh();
+  }
+
+  ngOnDestroy(): void {
+    this.productEvents.disconnect();
   }
 
   protected toggleUserMenu(event: MouseEvent): void {

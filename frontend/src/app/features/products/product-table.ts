@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { debounceTime } from 'rxjs';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   LucideChevronLeft,
@@ -13,6 +14,7 @@ import {
 import { CatalogApi } from '../../core/api/catalog-api.service';
 import { CategoryTree, ProductCounts, ProductResponse, ProductStatus } from '../../core/api/models';
 import { ProductApi } from '../../core/api/product-api.service';
+import { ProductEvents } from '../../core/api/product-events.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { RelativeTimePipe } from '../../shared/format/relative-time.pipe';
 import { ConfidenceBadge } from '../../shared/ui/confidence-badge';
@@ -112,6 +114,15 @@ export class ProductTable {
 
       untracked(() => this.fetch(statuses, page));
     });
+
+    // Live refresh: any pipeline status change re-reads the current page and
+    // counts quietly; the debounce folds bursts of events into one request
+    inject(ProductEvents).events$
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        this.fetch(this.selectedStatuses(), this.page(), true);
+        this.refreshCounts();
+      });
   }
 
   protected imageUrl(product: ProductResponse): string {
@@ -210,8 +221,11 @@ export class ProductTable {
     });
   }
 
-  private fetch(statuses: ProductStatus[], page: number): void {
-    this.loading.set(true);
+  // A silent fetch swaps the rows in place without flashing the skeleton
+  private fetch(statuses: ProductStatus[], page: number, silent = false): void {
+    if (!silent) {
+      this.loading.set(true);
+    }
 
     this.api.list({ status: statuses, page: page - 1, size: PAGE_SIZE }).subscribe((result) => {
       this.items.set(result.content);

@@ -33,6 +33,8 @@ public interface TaggingModelClient {
 
     record AttributeExtraction(Map<String, Object> attributes,
                                Map<String, Double> confidences,
+                               String titleTr,
+                               String titleEn,
                                String modelName) {
     }
 }

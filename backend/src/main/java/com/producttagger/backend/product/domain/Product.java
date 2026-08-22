@@ -134,10 +134,13 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
      * Transition {@code TAGGING -> PENDING_REVIEW}: records the AI proposal as a
      * new revision; the product's own category/attributes only change on {@link #approve}.
      * A null proposedCategory means the model chose "other" (manual selection in review).
+     * The titles are provisional and are regenerated from the approved data later.
      */
     public TagRevision proposeTagging(Category proposedCategory,
                                       Map<String, Object> proposedAttributes,
                                       Map<String, Object> confidences,
+                                      String titleTr,
+                                      String titleEn,
                                       String modelName) {
         requireStatus(ProductStatus.TAGGING);
 
@@ -148,6 +151,8 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
 
         this.status = ProductStatus.PENDING_REVIEW;
         this.minConfidence = lowestAttributeConfidence(confidences);
+        this.titleTr = titleTr;
+        this.titleEn = titleEn;
 
         notifyStatusChanged();
 
@@ -206,13 +211,16 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
     }
 
     /**
-     * Transition {@code REJECTED/FAILED -> PREPROCESSED}: re-enters the tagging
-     * pipeline with the existing images; each retag yields a new AI revision.
+     * Transition {@code PENDING_REVIEW/REJECTED/FAILED -> PREPROCESSED}: re-enters
+     * the tagging pipeline with the existing images; each retag yields a new AI
+     * revision. A pending product may be retagged to ask for a fresh proposal.
      */
     public void requestRetagging() {
-        if (status != ProductStatus.REJECTED && status != ProductStatus.FAILED) {
+        if (status != ProductStatus.PENDING_REVIEW
+                && status != ProductStatus.REJECTED
+                && status != ProductStatus.FAILED) {
             throw new IllegalStateException(
-                    "Expected product %s to be in status REJECTED or FAILED but was %s".formatted(id, status));
+                    "Product %s cannot be retagged in status %s".formatted(id, status));
         }
 
         this.status = ProductStatus.PREPROCESSED;

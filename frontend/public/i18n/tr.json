@@ -3,7 +3,7 @@
     "nav": {
       "upload": "Yükle",
       "products": "Ürünler",
-      "reviewQueue": "Review Kuyruğu"
+      "reviewQueue": "İnceleme"
     },
     "user": {
       "profile": "Profil",
@@ -86,7 +86,7 @@
     "summary": "{{count}} ürün incelemeni bekliyor",
     "oldest": "en eski {{relativeTime}} yüklendi",
     "empty": {
-      "title": "Kuyruk temiz!",
+      "title": "Her şey incelendi!",
       "body": "Tüm ürünler incelendi. Yeni bir öneri hazır olduğunda burada görünecek.",
       "cta": "Tüm ürünlere git"
     }
@@ -99,9 +99,7 @@
     "review": "İncele"
   },
   "review": {
-    "placeholder": "Review kuyruğu — tasarım bekleniyor.",
-    "breadcrumb": "Review Kuyruğu",
-    "queuePosition": "{{current}} / {{total}}",
+    "breadcrumb": "İnceleme",
     "suggestedAt": "Öneri {{relativeTime}} oluşturuldu",
     "approvedBy": "{{name}} onayladı",
     "details": {
@@ -137,6 +135,7 @@
       "tr": "Türkçe",
       "en": "İngilizce",
       "pendingNote": "Açıklamalar onaydan sonra otomatik üretilecek. Onayladığınızda TR ve EN metinler modele yazdırılır ve burada düzenlenebilir olur.",
+      "missingNote": "Açıklamalar üretilemedi. Yeniden üret ile tekrar deneyebilirsiniz.",
       "regenerate": "Yeniden üret",
       "generating": "Açıklamalar üretiliyor…",
       "autosave": "Düzenlemeleriniz otomatik kaydedilir"

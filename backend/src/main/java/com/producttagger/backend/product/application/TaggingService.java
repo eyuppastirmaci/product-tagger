@@ -171,15 +171,19 @@ public class TaggingService {
 
         Map<String, Object> confidences = new LinkedHashMap<>(descent.levelConfidences());
         Map<String, Object> attributes = null;
+        String titleTr = null;
+        String titleEn = null;
         String modelName = descent.modelName();
 
         if (extraction != null) {
             attributes = extraction.attributes();
             confidences.putAll(extraction.confidences());
+            titleTr = extraction.titleTr();
+            titleEn = extraction.titleEn();
             modelName = extraction.modelName();
         }
 
-        product.proposeTagging(descent.leaf(), attributes, confidences, modelName);
+        product.proposeTagging(descent.leaf(), attributes, confidences, titleTr, titleEn, modelName);
 
         products.save(product);
 

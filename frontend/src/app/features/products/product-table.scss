@@ -94,7 +94,7 @@
 .table-head,
 .row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 168px 104px 116px 30px;
+  grid-template-columns: 56px minmax(0, 1fr) 188px 104px 116px 30px;
   align-items: center;
   padding: 0 14px;
 }
@@ -171,24 +171,26 @@
 .status-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .retry {
   width: 22px;
   height: 22px;
-  border: none;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: transparent;
-  color: var(--color-text-dim);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
 
   &:hover {
     color: var(--color-danger);
+    border-color: var(--color-danger);
     background: var(--color-danger-soft);
   }
 }

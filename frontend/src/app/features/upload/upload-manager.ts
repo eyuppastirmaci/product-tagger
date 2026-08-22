@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ProductApi } from '../../core/api/product-api.service';
+import { ProductEvents, ProductStatusEvent } from '../../core/api/product-events.service';
 import { ProductStatus } from '../../core/api/models';
-import { ReviewStore } from '../../core/state/review-store';
 
 export type UploadItemStatus = 'UPLOADING' | 'ERROR' | ProductStatus;
 
@@ -12,22 +12,22 @@ export interface UploadItem {
   status: UploadItemStatus;
 }
 
-// The pipeline stops being interesting for the upload list at these states
-const TERMINAL_STATUSES: ProductStatus[] = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'FAILED'];
-
 /**
- * Uploads files and follows each product's pipeline over SSE until it reaches
- * review. Root-scoped on purpose: the list survives navigating away and back.
+ * Uploads files and follows each product's pipeline on the shared SSE stream
+ * until it reaches review. Root-scoped on purpose: the list survives
+ * navigating away and back.
  */
 @Injectable({ providedIn: 'root' })
 export class UploadManager {
   private readonly api = inject(ProductApi);
-  private readonly reviewStore = inject(ReviewStore);
 
   readonly items = signal<UploadItem[]>([]);
 
   private nextLocalId = 0;
-  private readonly sources = new Map<number, EventSource>();
+
+  constructor() {
+    inject(ProductEvents).events$.subscribe((event) => this.onStatus(event));
+  }
 
   uploadAll(files: File[]): void {
     files.forEach((file) => this.uploadOne(file));
@@ -42,36 +42,17 @@ export class UploadManager {
     ]);
 
     this.api.upload(file).subscribe({
-      next: (product) => {
-        this.patch(localId, { productId: product.id, status: product.status });
-        this.watch(localId, product.id);
-      },
+      next: (product) => this.patch(localId, { productId: product.id, status: product.status }),
       error: () => this.patch(localId, { status: 'ERROR' }),
     });
   }
 
-  private watch(localId: number, productId: string): void {
-    const source = new EventSource(`/api/products/${productId}/events`);
+  private onStatus(event: ProductStatusEvent): void {
+    const item = this.items().find((candidate) => candidate.productId === event.productId);
 
-    source.addEventListener('status', (event) => {
-      const payload = JSON.parse((event as MessageEvent).data) as { status: ProductStatus };
-
-      this.patch(localId, { status: payload.status });
-
-      if (TERMINAL_STATUSES.includes(payload.status)) {
-        this.stopWatching(localId);
-        this.reviewStore.refresh();
-      }
-    });
-
-    source.onerror = () => this.stopWatching(localId);
-
-    this.sources.set(localId, source);
-  }
-
-  private stopWatching(localId: number): void {
-    this.sources.get(localId)?.close();
-    this.sources.delete(localId);
+    if (item) {
+      this.patch(item.localId, { status: event.status });
+    }
   }
 
   private patch(localId: number, patch: Partial<UploadItem>): void {

@@ -27,7 +27,9 @@ class SpringAiTaggingClient implements TaggingModelClient {
             multi flag (single value vs. list), and list multiple values most \
             dominant first (e.g. main color before accent colors). Skip attributes \
             you cannot infer from the photo instead of guessing. For every returned \
-            attribute report a confidence between 0.0 and 1.0.""";
+            attribute report a confidence between 0.0 and 1.0. Also write a short \
+            product title (max 60 characters, no trailing punctuation) in Turkish \
+            (titleTr) and in English (titleEn), e.g. "Burgundy Solid T-shirt".""";
 
     private final ChatClient chatClient;
     private final ModelOutputSanitizer sanitizer;
@@ -77,6 +79,8 @@ class SpringAiTaggingClient implements TaggingModelClient {
         return new AttributeExtraction(
                 extraction.attributes() == null ? Map.of() : extraction.attributes(),
                 extraction.confidences() == null ? Map.of() : extraction.confidences(),
+                extraction.titleTr(),
+                extraction.titleEn(),
                 response.getMetadata().getModel());
     }
 
@@ -92,6 +96,9 @@ class SpringAiTaggingClient implements TaggingModelClient {
     record CategoryChoiceResponse(String category, Double confidence) {
     }
 
-    record AttributeExtractionResponse(Map<String, Object> attributes, Map<String, Double> confidences) {
+    record AttributeExtractionResponse(Map<String, Object> attributes,
+                                       Map<String, Double> confidences,
+                                       String titleTr,
+                                       String titleEn) {
     }
 }

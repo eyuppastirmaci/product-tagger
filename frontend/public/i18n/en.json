@@ -3,7 +3,7 @@
     "nav": {
       "upload": "Upload",
       "products": "Products",
-      "reviewQueue": "Review Queue"
+      "reviewQueue": "Review"
     },
     "user": {
       "profile": "Profile",
@@ -86,7 +86,7 @@
     "summary": "{{count}} products waiting for your review",
     "oldest": "oldest uploaded {{relativeTime}}",
     "empty": {
-      "title": "Queue is clear!",
+      "title": "All caught up!",
       "body": "All products are reviewed. New suggestions will appear here when ready.",
       "cta": "Go to all products"
     }
@@ -99,9 +99,7 @@
     "review": "Review"
   },
   "review": {
-    "placeholder": "Review queue — waiting for design.",
-    "breadcrumb": "Review Queue",
-    "queuePosition": "{{current}} / {{total}}",
+    "breadcrumb": "Review",
     "suggestedAt": "Suggested {{relativeTime}}",
     "approvedBy": "Approved by {{name}}",
     "details": {
@@ -137,6 +135,7 @@
       "tr": "Turkish",
       "en": "English",
       "pendingNote": "Descriptions are generated automatically after approval. Once you approve, the TR and EN texts are written by the model and become editable here.",
+      "missingNote": "Descriptions could not be generated. You can try again with Regenerate.",
       "regenerate": "Regenerate",
       "generating": "Generating descriptions…",
       "autosave": "Your edits are saved automatically"

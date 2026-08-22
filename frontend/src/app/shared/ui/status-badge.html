@@ -1,4 +1,28 @@
 <span class="badge" [class]="'tone-' + meta().tone">
-  <span class="dot"></span>
-  {{ meta().key | transloco }}
+  <span class="icon" [class.blink]="status() === 'TAGGING'">
+    @switch (status()) {
+      @case ('UPLOADED') {
+        <svg lucideUpload [size]="11" [strokeWidth]="2.2"></svg>
+      }
+      @case ('PREPROCESSED') {
+        <svg lucideImage [size]="11" [strokeWidth]="2.2"></svg>
+      }
+      @case ('TAGGING') {
+        <svg lucideAlarmClock [size]="11" [strokeWidth]="2.2"></svg>
+      }
+      @case ('PENDING_REVIEW') {
+        <svg lucideEye [size]="11" [strokeWidth]="2.2"></svg>
+      }
+      @case ('APPROVED') {
+        <svg lucideCheck [size]="11" [strokeWidth]="2.6"></svg>
+      }
+      @case ('REJECTED') {
+        <svg lucideX [size]="11" [strokeWidth]="2.6"></svg>
+      }
+      @case ('FAILED') {
+        <svg lucideTriangleAlert [size]="11" [strokeWidth]="2.2"></svg>
+      }
+    }
+  </span>
+  <span class="label">{{ meta().key | transloco }}</span>
 </span>

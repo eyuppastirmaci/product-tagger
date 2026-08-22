@@ -1,5 +1,5 @@
 import { Component, HostListener, OnDestroy, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import {
   LucideSparkles,
   LucideX,
 } from '@lucide/angular';
-import { map } from 'rxjs';
+import { Subscription, map } from 'rxjs';
 import { CatalogApi } from '../../core/api/catalog-api.service';
 import {
   AttributeValues,
@@ -24,6 +24,7 @@ import {
   SchemaAttribute,
 } from '../../core/api/models';
 import { ProductApi } from '../../core/api/product-api.service';
+import { ProductEvents } from '../../core/api/product-events.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PageTitleService } from '../../core/layout/page-title.service';
 import { LocaleDatePipe } from '../../shared/format/locale-date.pipe';
@@ -76,6 +77,7 @@ const LOW_CONFIDENCE = 0.6;
 export class ReviewPage implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ProductApi);
+  private readonly productEvents = inject(ProductEvents);
   private readonly catalog = inject(CatalogApi);
   private readonly pageTitle = inject(PageTitleService);
   private readonly transloco = inject(TranslocoService);
@@ -99,7 +101,8 @@ export class ReviewPage implements OnDestroy {
 
   // Proposal values wait here until the proposed category's schema has loaded
   private pendingInitialValues: AttributeValues | null = null;
-  private eventSource: EventSource | null = null;
+  private eventsSubscription: Subscription | null = null;
+  private generationTimer: ReturnType<typeof setTimeout> | null = null;
   private autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly productId = toSignal(
@@ -119,6 +122,16 @@ export class ReviewPage implements OnDestroy {
 
     effect(() => {
       this.pageTitle.override.set(this.title());
+    });
+
+    // Follows a retag live: every pipeline transition of this product reloads
+    // the screen; APPROVED is left to the description watcher
+    this.productEvents.events$.pipe(takeUntilDestroyed()).subscribe((event) => {
+      const id = this.productId();
+
+      if (id && event.productId === id && event.status !== 'APPROVED') {
+        this.load(id);
+      }
     });
   }
 
@@ -254,6 +267,9 @@ export class ReviewPage implements OnDestroy {
     this.api.approve(id, { categoryCode: category, attributes: this.cleanedValues() }).subscribe({
       next: () => {
         this.submitting.set(false);
+        // Generation starts right after approval; the flag keeps the info box
+        // on "generating" until the texts land over SSE
+        this.generating.set(true);
         this.load(id);
         this.watchDescriptions(id);
       },
@@ -371,11 +387,19 @@ export class ReviewPage implements OnDestroy {
 
       this.selectedCategory.set(proposedCode);
       this.pendingInitialValues = review.proposal?.attributes ?? null;
-      this.values.set({});
-      this.schema.set(null);
 
-      if (proposedCode) {
-        this.loadSchema(proposedCode);
+      // Same category as the loaded schema: swap the values in place so the
+      // form does not unmount and flicker on reloads (e.g. after a retag)
+      if (proposedCode && proposedCode === this.schema()?.categoryCode) {
+        this.values.set(this.pendingInitialValues ?? {});
+        this.pendingInitialValues = null;
+      } else {
+        this.values.set({});
+        this.schema.set(null);
+
+        if (proposedCode) {
+          this.loadSchema(proposedCode);
+        }
       }
     });
 
@@ -407,29 +431,33 @@ export class ReviewPage implements OnDestroy {
     }).subscribe();
   }
 
-  /** Listens to the SSE stream until the generated texts land, then reloads. */
+  /** Watches the shared SSE stream until the generated texts land, then reloads. */
   private watchDescriptions(id: string): void {
     this.stopWatching();
 
-    const source = new EventSource(`/api/products/${id}/events`);
-
-    source.addEventListener('status', (event) => {
-      const payload = JSON.parse((event as MessageEvent).data) as { descriptionsReady: boolean };
-
-      if (payload.descriptionsReady) {
+    this.eventsSubscription = this.productEvents.events$.subscribe((event) => {
+      if (event.productId === id && event.descriptionsReady) {
         this.stopWatching();
         this.load(id);
       }
     });
 
-    source.onerror = () => this.stopWatching();
-
-    this.eventSource = source;
+    // Safety valve: a permanently failed generation emits no event, so fall
+    // back to the Regenerate affordance instead of spinning forever
+    this.generationTimer = setTimeout(() => {
+      this.stopWatching();
+      this.generating.set(false);
+    }, 90_000);
   }
 
   private stopWatching(): void {
-    this.eventSource?.close();
-    this.eventSource = null;
+    this.eventsSubscription?.unsubscribe();
+    this.eventsSubscription = null;
+
+    if (this.generationTimer) {
+      clearTimeout(this.generationTimer);
+      this.generationTimer = null;
+    }
   }
 
   private loadSchema(code: string): void {

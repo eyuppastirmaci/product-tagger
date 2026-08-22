@@ -1,5 +1,14 @@
 import { Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {
+  LucideAlarmClock,
+  LucideCheck,
+  LucideEye,
+  LucideImage,
+  LucideTriangleAlert,
+  LucideUpload,
+  LucideX,
+} from '@lucide/angular';
 import { ProductStatus } from '../../core/api/models';
 
 const STATUS_META: Record<ProductStatus, { key: string; tone: string }> = {
@@ -15,7 +24,16 @@ const STATUS_META: Record<ProductStatus, { key: string; tone: string }> = {
 // Raw status enums never reach the screen; the label always comes from i18n.
 @Component({
   selector: 'pt-status-badge',
-  imports: [TranslocoPipe],
+  imports: [
+    TranslocoPipe,
+    LucideAlarmClock,
+    LucideCheck,
+    LucideEye,
+    LucideImage,
+    LucideTriangleAlert,
+    LucideUpload,
+    LucideX,
+  ],
   templateUrl: './status-badge.html',
   styleUrl: './status-badge.scss',
 })

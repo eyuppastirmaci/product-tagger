@@ -140,7 +140,8 @@
         <div class="descriptions-block" [class.pending]="!descriptionsReady()">
           <div class="block-header">
             <span class="block-label">{{ 'review.descriptions.title' | transloco }}</span>
-            @if (descriptionsReady()) {
+            <!-- Approval is what enables generation, so a failed run can always be retried here -->
+            @if (review()?.status === 'APPROVED' && !generating()) {
               <button class="regenerate" type="button" (click)="regenerate()">
                 <svg lucideRefreshCw [size]="12" [strokeWidth]="1.9"></svg>
                 {{ 'review.descriptions.regenerate' | transloco }}
@@ -162,7 +163,13 @@
             <div class="info-box">
               <svg lucideSparkles [size]="14" [strokeWidth]="1.8"></svg>
               <span>
-                {{ (generating() ? 'review.descriptions.generating' : 'review.descriptions.pendingNote') | transloco }}
+                @if (generating()) {
+                  {{ 'review.descriptions.generating' | transloco }}
+                } @else if (review()?.status === 'APPROVED') {
+                  {{ 'review.descriptions.missingNote' | transloco }}
+                } @else {
+                  {{ 'review.descriptions.pendingNote' | transloco }}
+                }
               </span>
             </div>
             <div class="desc-placeholder"></div>

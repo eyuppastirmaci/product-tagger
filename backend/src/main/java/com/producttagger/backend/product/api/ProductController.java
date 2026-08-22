@@ -80,13 +80,10 @@ class ProductController {
         return ReviewResponse.from(queryService.getForReview(id));
     }
 
-    @GetMapping("/{id}/events")
-    SseEmitter events(@PathVariable UUID id) {
-        Product product = queryService.find(id);
-
-        return broadcaster.subscribe(id, new ProductEventsBroadcaster.StatusPayload(
-                product.getStatus().name(),
-                product.getDescriptionTr() != null));
+    // One stream for all products; clients filter by the productId in the payload
+    @GetMapping("/events")
+    SseEmitter events() {
+        return broadcaster.subscribe();
     }
 
     @GetMapping("/{id}/image")

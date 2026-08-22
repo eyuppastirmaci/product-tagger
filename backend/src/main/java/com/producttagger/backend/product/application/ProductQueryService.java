@@ -63,12 +63,8 @@ public class ProductQueryService {
         return products.findByIdForReview(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    public Product find(UUID id) {
-        return products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-    }
-
     public ImageDownload image(UUID id, String variant) {
-        Product product = find(id);
+        Product product = products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         String key = product.getImagePaths().pathFor(ImageVariant.from(variant));
 

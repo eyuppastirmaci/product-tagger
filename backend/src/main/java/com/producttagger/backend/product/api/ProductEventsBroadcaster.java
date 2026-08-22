@@ -11,14 +11,14 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * In-memory SSE registry: one emitter list per product, fed by
- * {@link ProductStatusChanged} events after the transaction commits.
+ * In-memory SSE registry: one global subscriber list fed by
+ * {@link ProductStatusChanged} events after the transaction commits. Every
+ * product's updates travel over a single connection per browser, staying far
+ * below the browser's per-origin connection limit.
  */
 @Component
 public class ProductEventsBroadcaster {
@@ -27,19 +27,16 @@ public class ProductEventsBroadcaster {
 
     private static final long EMITTER_TIMEOUT_MS = 30 * 60 * 1000L;
 
-    private final Map<UUID, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
-    public SseEmitter subscribe(UUID productId, StatusPayload initial) {
+    public SseEmitter subscribe() {
         SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT_MS);
 
-        emitters.computeIfAbsent(productId, id -> new CopyOnWriteArrayList<>()).add(emitter);
+        emitters.add(emitter);
 
-        emitter.onCompletion(() -> remove(productId, emitter));
-        emitter.onTimeout(() -> remove(productId, emitter));
-        emitter.onError(e -> remove(productId, emitter));
-
-        // Immediate snapshot so the client never renders without a known state
-        send(productId, emitter, initial);
+        emitter.onCompletion(() -> emitters.remove(emitter));
+        emitter.onTimeout(() -> emitters.remove(emitter));
+        emitter.onError(e -> emitters.remove(emitter));
 
         return emitter;
     }
@@ -47,52 +44,35 @@ public class ProductEventsBroadcaster {
     // AFTER_COMMIT: a client refetching on this event must see the new DB state
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(ProductStatusChanged event) {
-        List<SseEmitter> subscribers = emitters.get(event.productId());
+        StatusPayload payload = new StatusPayload(
+                event.productId(), event.status().name(), event.descriptionsReady());
 
-        if (subscribers == null) {
-            return;
-        }
-
-        StatusPayload payload = new StatusPayload(event.status().name(), event.descriptionsReady());
-
-        for (SseEmitter emitter : subscribers) {
-            send(event.productId(), emitter, payload);
+        for (SseEmitter emitter : emitters) {
+            send(emitter, payload);
         }
     }
 
     // Keeps idle connections alive through proxies and prunes dead ones
     @Scheduled(fixedDelay = 25_000)
     void heartbeat() {
-        emitters.forEach((productId, subscribers) -> subscribers.forEach(emitter -> {
+        for (SseEmitter emitter : emitters) {
             try {
                 emitter.send(SseEmitter.event().comment("ping"));
             } catch (Exception e) {
-                remove(productId, emitter);
+                emitters.remove(emitter);
             }
-        }));
+        }
     }
 
-    private void send(UUID productId, SseEmitter emitter, StatusPayload payload) {
+    private void send(SseEmitter emitter, StatusPayload payload) {
         try {
             emitter.send(SseEmitter.event().name("status").data(payload, MediaType.APPLICATION_JSON));
         } catch (Exception e) {
-            log.debug("Dropping dead SSE subscriber of product {}", productId);
-            remove(productId, emitter);
+            log.debug("Dropping dead SSE subscriber");
+            emitters.remove(emitter);
         }
     }
 
-    private void remove(UUID productId, SseEmitter emitter) {
-        List<SseEmitter> subscribers = emitters.get(productId);
-
-        if (subscribers != null) {
-            subscribers.remove(emitter);
-
-            if (subscribers.isEmpty()) {
-                emitters.remove(productId, subscribers);
-            }
-        }
-    }
-
-    public record StatusPayload(String status, boolean descriptionsReady) {
+    public record StatusPayload(UUID productId, String status, boolean descriptionsReady) {
     }
 }
