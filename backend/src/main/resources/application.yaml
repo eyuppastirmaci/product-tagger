@@ -10,7 +10,8 @@ spring:
     default: hosted
 
   datasource:
-    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:product_tagger}
+    # Hosts default to localhost for IDE runs; compose overrides them with service names
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:product_tagger}
     username: ${POSTGRES_USER:pt}
     password: ${POSTGRES_PASSWORD:pt}
 
@@ -27,7 +28,7 @@ spring:
       spec: maximumSize=100,expireAfterWrite=12h
 
   rabbitmq:
-    host: localhost
+    host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:pt}
     password: ${RABBITMQ_PASSWORD:pt}
@@ -67,7 +68,7 @@ auth:
 
 storage:
   s3:
-    endpoint: http://localhost:${MINIO_PORT:9000}
+    endpoint: ${MINIO_ENDPOINT:http://localhost:${MINIO_PORT:9000}}
     access-key: ${MINIO_USER:pt-admin}
     secret-key: ${MINIO_PASSWORD:pt-password}
     bucket: ${MINIO_BUCKET:product-images}
