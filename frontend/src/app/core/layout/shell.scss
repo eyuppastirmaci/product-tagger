@@ -22,25 +22,11 @@
   padding: 16px 14px 14px 16px;
 }
 
-.logo-mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: linear-gradient(140deg, var(--brand-a), var(--brand-b));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    display: block;
-  }
-}
-
-.wordmark {
-  font-size: 13.5px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--color-text);
+.logo-lockup {
+  height: 22px;
+  width: auto;
+  display: block;
+  font-family: var(--font-sans);
 }
 
 .version {
@@ -58,6 +44,26 @@
   flex-direction: column;
   gap: 1px;
   padding: 6px 10px;
+}
+
+.upload-cta {
+  height: 34px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
 }
 
 .nav-item {
@@ -169,6 +175,7 @@
 
 .user-name {
   font-size: 12.5px;
+  line-height: 1.35;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--color-text);
@@ -180,6 +187,7 @@
 
 .user-email {
   font-size: 11px;
+  line-height: 1.35;
   color: var(--color-text-dim);
   white-space: nowrap;
   overflow: hidden;
