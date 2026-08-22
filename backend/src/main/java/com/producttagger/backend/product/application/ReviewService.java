@@ -18,9 +18,7 @@ public class ReviewService {
     private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
     private final ProductRepository products;
-
     private final CatalogService catalog;
-
     private final AttributeValidator validator;
 
     public ReviewService(ProductRepository products, CatalogService catalog, AttributeValidator validator) {

@@ -14,7 +14,6 @@ import java.io.InputStream;
 class S3ImageStorage implements ImageStorage {
 
     private final S3Client s3;
-
     private final S3StorageProperties properties;
 
     S3ImageStorage(S3Client s3, S3StorageProperties properties) {

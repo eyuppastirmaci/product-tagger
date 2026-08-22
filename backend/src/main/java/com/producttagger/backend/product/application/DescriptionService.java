@@ -20,9 +20,7 @@ public class DescriptionService {
     private static final Logger log = LoggerFactory.getLogger(DescriptionService.class);
 
     private final ProductRepository products;
-
     private final DescriptionModelClient model;
-
     private final TransactionTemplate transaction;
 
     public DescriptionService(ProductRepository products,

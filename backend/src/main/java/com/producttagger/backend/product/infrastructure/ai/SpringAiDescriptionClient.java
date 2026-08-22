@@ -20,9 +20,7 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
             per language in a friendly marketing tone, no bullet points.""";
 
     private final ChatClient chatClient;
-
     private final ModelOutputSanitizer sanitizer;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     SpringAiDescriptionClient(ChatClient.Builder chatClientBuilder, ModelOutputSanitizer sanitizer) {

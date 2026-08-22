@@ -15,7 +15,6 @@ class ProductPipelineListeners {
     private static final Logger log = LoggerFactory.getLogger(ProductPipelineListeners.class);
 
     private final TaggingService taggingService;
-
     private final DescriptionService descriptionService;
 
     ProductPipelineListeners(TaggingService taggingService, DescriptionService descriptionService) {

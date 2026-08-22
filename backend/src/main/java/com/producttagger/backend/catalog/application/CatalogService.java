@@ -16,7 +16,6 @@ import java.util.List;
 public class CatalogService {
 
     private final CategoryRepository categories;
-
     private final CategorySchemaRepository schemas;
 
     public CatalogService(CategoryRepository categories, CategorySchemaRepository schemas) {

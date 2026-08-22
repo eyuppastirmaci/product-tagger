@@ -29,13 +29,9 @@ public class TaggingService {
     private static final Logger log = LoggerFactory.getLogger(TaggingService.class);
 
     private final ProductRepository products;
-
     private final CatalogService catalog;
-
     private final TaggingModelClient model;
-
     private final ImageStorage imageStorage;
-
     private final TransactionTemplate transaction;
 
     public TaggingService(ProductRepository products,

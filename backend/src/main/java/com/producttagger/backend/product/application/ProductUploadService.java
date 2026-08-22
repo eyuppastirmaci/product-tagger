@@ -20,9 +20,7 @@ public class ProductUploadService {
             "image/webp", "webp");
 
     private final ImageStorage imageStorage;
-
     private final ImageProcessor imageProcessor;
-
     private final ProductRepository products;
 
     public ProductUploadService(ImageStorage imageStorage,

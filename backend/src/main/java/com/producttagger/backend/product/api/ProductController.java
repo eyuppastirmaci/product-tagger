@@ -32,9 +32,7 @@ import java.util.UUID;
 class ProductController {
 
     private final ProductUploadService uploadService;
-
     private final ReviewService reviewService;
-
     private final ProductRepository products;
 
     ProductController(ProductUploadService uploadService, ReviewService reviewService, ProductRepository products) {

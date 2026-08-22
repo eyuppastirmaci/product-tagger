@@ -21,7 +21,6 @@ class OutboxRelay {
     private static final Logger log = LoggerFactory.getLogger(OutboxRelay.class);
 
     private final OutboxEventRepository outbox;
-
     private final RabbitTemplate rabbitTemplate;
 
     OutboxRelay(OutboxEventRepository outbox, RabbitTemplate rabbitTemplate) {

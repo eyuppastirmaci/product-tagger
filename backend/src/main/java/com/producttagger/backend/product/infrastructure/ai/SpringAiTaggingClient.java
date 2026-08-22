@@ -30,9 +30,7 @@ class SpringAiTaggingClient implements TaggingModelClient {
             attribute report a confidence between 0.0 and 1.0.""";
 
     private final ChatClient chatClient;
-
     private final ModelOutputSanitizer sanitizer;
-
     private final AttributeSchemaPromptMapper schemaMapper;
 
     SpringAiTaggingClient(ChatClient.Builder chatClientBuilder,
