@@ -6,5 +6,6 @@ spring:
     ollama:
       base-url: http://localhost:${OLLAMA_PORT:11434}
       chat:
-        options:
-          model: ${OLLAMA_MODEL:qwen3.5:4b}
+        model: ${OLLAMA_MODEL:qwen3.5:4b}
+        # Classification task: low temperature for consistent answers
+        temperature: 0.1

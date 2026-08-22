@@ -21,7 +21,7 @@ class ProductPipelineListeners {
 
     @RabbitListener(queues = ProductMessaging.READY_FOR_TAGGING)
     void onReadyForTagging(ProductMessage message) {
-        taggingService.startTagging(UUID.fromString(message.productId()));
+        taggingService.tagProduct(UUID.fromString(message.productId()));
     }
 
     // Preprocessing is synchronous today; this consumer only acknowledges the
@@ -29,6 +29,11 @@ class ProductPipelineListeners {
     @RabbitListener(queues = ProductMessaging.UPLOADED)
     void onUploaded(ProductMessage message) {
         log.debug("Product {} uploaded", message.productId());
+    }
+
+    @RabbitListener(queues = ProductMessaging.READY_FOR_TAGGING_DLQ)
+    void onTaggingDeadLetter(ProductMessage message) {
+        taggingService.markTaggingFailed(UUID.fromString(message.productId()));
     }
 
     record ProductMessage(String productId) {

@@ -4,8 +4,10 @@ spring:
       chat: openai
       embedding: none
     openai:
-      base-url: https://router.huggingface.co
+      # Spring AI 2.0 uses the official OpenAI SDK, which does NOT append /v1 itself
+      base-url: https://router.huggingface.co/v1
       api-key: ${HF_TOKEN:}
       chat:
-        options:
-          model: ${HF_MODEL:Qwen/Qwen3.5-27B}:${HF_PROVIDER:novita}
+        model: ${HF_MODEL:Qwen/Qwen3.5-27B}:${HF_PROVIDER:novita}
+        # Classification task: low temperature for consistent answers
+        temperature: 0.1

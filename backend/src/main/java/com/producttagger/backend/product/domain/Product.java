@@ -119,6 +119,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
     /**
      * Transition {@code TAGGING -> PENDING_REVIEW}: records the AI proposal as a
      * new revision; the product's own category/attributes only change on {@link #approve}.
+     * A null proposedCategory means the model chose "other" (manual selection in review).
      */
     public TagRevision proposeTagging(Category proposedCategory,
                                       Map<String, Object> proposedAttributes,
