@@ -22,6 +22,11 @@ export const routes: Routes = [
         data: { title: 'shell.nav.reviewQueue' },
         loadComponent: () => import('./features/review/review-queue-page').then((m) => m.ReviewQueuePage),
       },
+      {
+        path: 'review/:id',
+        data: { title: 'review.breadcrumb' },
+        loadComponent: () => import('./features/review/review-page').then((m) => m.ReviewPage),
+      },
     ],
   },
 ];

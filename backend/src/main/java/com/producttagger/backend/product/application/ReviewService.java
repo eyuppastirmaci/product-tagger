@@ -82,6 +82,31 @@ public class ReviewService {
         return product;
     }
 
+    @Transactional
+    public Product updateContent(UUID productId, String titleTr, String titleEn,
+                                 String descriptionTr, String descriptionEn) {
+        Product product = findProduct(productId);
+
+        product.updateGeneratedContent(titleTr, titleEn, descriptionTr, descriptionEn);
+
+        products.save(product);
+
+        return product;
+    }
+
+    @Transactional
+    public Product regenerateContent(UUID productId) {
+        Product product = findProduct(productId);
+
+        product.requestContentRegeneration();
+
+        products.save(product);
+
+        log.info("Content regeneration requested for product {}", productId);
+
+        return product;
+    }
+
     private Product findProduct(UUID productId) {
         return products.findById(productId).orElseThrow(() -> new ProductNotFoundException(productId));
     }

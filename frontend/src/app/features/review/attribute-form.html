@@ -1,0 +1,70 @@
+@for (def of definitions(); track def.key) {
+  <div class="field-card"
+       [class.low]="isLowConfidence(def)"
+       [class.error]="errors()[def.key]"
+       [class.dashed]="!hasSuggestion(def) && !errors()[def.key]">
+    <div class="field-header">
+      <span class="field-label">{{ labelOf(def) }}</span>
+      <span class="field-type">{{ typeTag(def) }}</span>
+      <pt-confidence-badge class="field-confidence" [confidence]="confidenceOf(def.key)" />
+    </div>
+
+    @switch (def.type) {
+      @case ('enum') {
+        @if (def.multi) {
+          <div class="chips">
+            @for (code of multiValues(def.key); track code) {
+              <span class="chip">
+                {{ valueLabel(def, code) }}
+                <button type="button" (click)="removeChip(def.key, code)">
+                  <svg lucideX [size]="11" [strokeWidth]="2"></svg>
+                </button>
+              </span>
+            }
+            <div class="add-anchor">
+              <button class="add-trigger" type="button" (click)="toggleAdd(def.key, $event)">
+                <svg lucidePlus [size]="12" [strokeWidth]="2"></svg>
+                {{ 'review.attributes.addValue' | transloco: { field: labelOf(def) } }}
+              </button>
+              @if (addOpenFor() === def.key) {
+                <div class="add-menu" (click)="$event.stopPropagation()">
+                  @for (code of remainingValues(def); track code) {
+                    <button type="button" (click)="addChip(def.key, code)">
+                      {{ valueLabel(def, code) }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <pt-select [options]="optionsFor(def)"
+                     [placeholder]="'review.attributes.noSuggestion' | transloco"
+                     [ngModel]="singleValue(def.key) || null"
+                     (ngModelChange)="onSingleChange(def.key, $event)" />
+        }
+      }
+      @case ('boolean') {
+        <div class="bool-row">
+          <pt-switch [ngModel]="boolValue(def.key)" (ngModelChange)="onBoolChange(def.key, $event)" />
+          <span>{{ (boolValue(def.key) ? 'common.yes' : 'common.no') | transloco }}</span>
+          @if (isLowConfidence(def)) {
+            <span class="low-hint">{{ 'review.attributes.lowConfidenceHint' | transloco }}</span>
+          }
+        </div>
+      }
+      @case ('text') {
+        <pt-text-input [ngModel]="singleValue(def.key) || null"
+                       (ngModelChange)="onTextChange(def.key, $event)" />
+      }
+    }
+
+    @if (isLowConfidence(def) && def.type !== 'boolean') {
+      <div class="low-hint">{{ 'review.attributes.lowConfidenceHint' | transloco }}</div>
+    }
+
+    @if (errors()[def.key]) {
+      <div class="error-hint">{{ 'review.validation.required' | transloco }}</div>
+    }
+  </div>
+}

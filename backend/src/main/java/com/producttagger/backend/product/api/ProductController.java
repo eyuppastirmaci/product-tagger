@@ -17,6 +17,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -155,5 +156,16 @@ class ProductController {
     @PostMapping("/{id}/retag")
     ProductResponse retag(@PathVariable UUID id) {
         return ProductResponse.from(reviewService.retag(id));
+    }
+
+    @PatchMapping("/{id}/content")
+    ProductResponse updateContent(@PathVariable UUID id, @RequestBody UpdateContentRequest request) {
+        return ProductResponse.from(reviewService.updateContent(
+                id, request.titleTr(), request.titleEn(), request.descriptionTr(), request.descriptionEn()));
+    }
+
+    @PostMapping("/{id}/content/regenerate")
+    ProductResponse regenerateContent(@PathVariable UUID id) {
+        return ProductResponse.from(reviewService.regenerateContent(id));
     }
 }

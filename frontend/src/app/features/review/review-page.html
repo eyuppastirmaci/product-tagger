@@ -1,0 +1,194 @@
+@if (review(); as r) {
+  <div class="review-layout">
+    <section class="image-panel">
+      <div class="image-card">
+        @if (imageMeta(); as meta) {
+          @if (meta.width > 0) {
+            <span class="size-badge">{{ meta.width }}×{{ meta.height }}</span>
+          }
+        }
+        <button class="expand" type="button"
+                [attr.aria-label]="'review.actions.expandImage' | transloco"
+                (click)="openOriginal()">
+          <svg lucideMaximize2 [size]="14" [strokeWidth]="1.9"></svg>
+        </button>
+        <img [src]="imageUrl()" alt="" (load)="onImageLoad($event)" />
+      </div>
+      <div class="image-meta">
+        <span>{{ 'review.meta.uploadedAt' | transloco: { date: r.createdAt | localeDate: language.lang() } }}</span>
+        @if (imageMeta(); as meta) {
+          @if (meta.format) {
+            <span class="sep">·</span>
+            <span>{{ meta.format }}</span>
+          }
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-header">
+        <div class="title-row">
+          <h1>{{ title() }}</h1>
+          <div class="details-anchor">
+            <button class="info-button" type="button"
+                    [attr.aria-label]="'review.details.title' | transloco"
+                    (click)="toggleDetails($event)">
+              <svg lucideInfo [size]="14" [strokeWidth]="1.9"></svg>
+            </button>
+            @if (detailsOpen()) {
+              <div class="details-popover" role="dialog"
+                   [attr.aria-label]="'review.details.title' | transloco"
+                   (click)="$event.stopPropagation()">
+                <div class="popover-title">{{ 'review.details.title' | transloco }}</div>
+                @if (r.proposal; as proposal) {
+                  <div class="row">
+                    <span>{{ 'review.details.model' | transloco }}</span>
+                    <span class="mono">{{ proposal.modelName }}</span>
+                  </div>
+                  <div class="row">
+                    <span>{{ 'review.details.revision' | transloco }}</span>
+                    <span class="mono">{{ proposal.revisionNo }}</span>
+                  </div>
+                  @if (processingSeconds(); as seconds) {
+                    <div class="row">
+                      <span>{{ 'review.details.duration' | transloco }}</span>
+                      <span class="mono">{{ formatSeconds(seconds) }}</span>
+                    </div>
+                  }
+                  <div class="divider"></div>
+                }
+                <div class="row">
+                  <span>{{ 'review.details.productId' | transloco }}</span>
+                  <button class="copy-button" type="button"
+                          [attr.aria-label]="'review.details.copy' | transloco"
+                          (click)="copyId()">
+                    <span class="mono">{{ shortId() }}</span>
+                    @if (copied()) {
+                      <svg lucideCheck [size]="13" [strokeWidth]="2"></svg>
+                    } @else {
+                      <svg lucideCopy [size]="13" [strokeWidth]="1.9"></svg>
+                    }
+                  </button>
+                </div>
+                <span class="sr-only" aria-live="polite">
+                  @if (copied()) {
+                    {{ 'review.details.copied' | transloco }}
+                  }
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="status-row">
+          <pt-status-badge [status]="r.status" />
+          @if (r.proposal; as proposal) {
+            <span class="suggested-at">
+              {{ 'review.suggestedAt' | transloco: { relativeTime: proposal.createdAt | relativeTime: language.lang() } }}
+            </span>
+          }
+        </div>
+      </header>
+
+      <div class="panel-body">
+        @if (r.status === 'FAILED') {
+          <div class="failed-box">
+            <strong>{{ 'review.failed.title' | transloco }}</strong>
+            <span>{{ 'review.failed.body' | transloco }}</span>
+          </div>
+        }
+
+        <div class="category-block">
+          <div class="block-header">
+            <span class="block-label">{{ 'review.category.label' | transloco }}</span>
+            @if (categoryConfidence() !== null) {
+              <pt-confidence-badge [confidence]="categoryConfidence()" />
+            }
+          </div>
+          <pt-select class="category-select"
+                     [options]="categoryOptions()"
+                     [placeholder]="'review.attributes.noSuggestion' | transloco"
+                     [ngModel]="selectedCategory()"
+                     (ngModelChange)="onCategorySelected($event)" />
+          <p class="hint">{{ 'review.category.hint' | transloco }}</p>
+        </div>
+
+        @if (schema(); as s) {
+          <div class="attributes-block">
+            <div class="block-header">
+              <span class="block-label">{{ 'review.attributes.title' | transloco }}</span>
+              <span class="block-meta">
+                {{ 'review.attributes.schemaMeta' | transloco: { count: s.schema.attributes.length, version: s.version } }}
+              </span>
+              @if (lowConfidenceCount() > 0) {
+                <span class="low-count">
+                  {{ 'review.attributes.lowConfidenceCount' | transloco: { count: lowConfidenceCount() } }}
+                </span>
+              }
+            </div>
+            <app-attribute-form
+              [definitions]="s.schema.attributes"
+              [confidences]="activeConfidences()"
+              [errors]="errors()"
+              [(values)]="values" />
+          </div>
+        }
+
+        <div class="descriptions-block" [class.pending]="!descriptionsReady()">
+          <div class="block-header">
+            <span class="block-label">{{ 'review.descriptions.title' | transloco }}</span>
+            @if (descriptionsReady()) {
+              <button class="regenerate" type="button" (click)="regenerate()">
+                <svg lucideRefreshCw [size]="12" [strokeWidth]="1.9"></svg>
+                {{ 'review.descriptions.regenerate' | transloco }}
+              </button>
+            }
+          </div>
+
+          @if (descriptionsReady()) {
+            <label class="desc-label">{{ 'review.descriptions.tr' | transloco }}</label>
+            <pt-textarea [rows]="3"
+                         [ngModel]="descriptionTr()"
+                         (ngModelChange)="onDescriptionChange('tr', $event)" />
+            <label class="desc-label">{{ 'review.descriptions.en' | transloco }}</label>
+            <pt-textarea [rows]="3"
+                         [ngModel]="descriptionEn()"
+                         (ngModelChange)="onDescriptionChange('en', $event)" />
+            <span class="autosave-note">{{ 'review.descriptions.autosave' | transloco }}</span>
+          } @else {
+            <div class="info-box">
+              <svg lucideSparkles [size]="14" [strokeWidth]="1.8"></svg>
+              <span>
+                {{ (generating() ? 'review.descriptions.generating' : 'review.descriptions.pendingNote') | transloco }}
+              </span>
+            </div>
+            <div class="desc-placeholder"></div>
+            <div class="desc-placeholder"></div>
+          }
+        </div>
+      </div>
+
+      <footer class="action-bar">
+        <button class="approve" type="button"
+                [disabled]="!canAct() || !selectedCategory() || submitting()"
+                [attr.title]="r.status === 'FAILED' ? ('review.actions.approveBlocked' | transloco) : null"
+                (click)="approve()">
+          <svg lucideCheck [size]="14" [strokeWidth]="2"></svg>
+          {{ 'review.actions.approve' | transloco }}
+        </button>
+        <button class="reject" type="button" [disabled]="!canAct()" (click)="reject()">
+          <svg lucideX [size]="14" [strokeWidth]="2"></svg>
+          {{ 'review.actions.reject' | transloco }}
+        </button>
+        <button class="retag" type="button" (click)="retag()">
+          @if (r.status === 'FAILED') {
+            <svg lucideRotateCw [size]="13" [strokeWidth]="1.9"></svg>
+            {{ 'review.actions.retry' | transloco }}
+          } @else {
+            <svg lucideRefreshCw [size]="13" [strokeWidth]="1.9"></svg>
+            {{ 'review.actions.retag' | transloco }}
+          }
+        </button>
+      </footer>
+    </section>
+  </div>
+}

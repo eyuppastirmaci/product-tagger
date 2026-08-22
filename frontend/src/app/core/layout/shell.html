@@ -50,7 +50,11 @@
     <header class="header">
       <span class="crumb-root">Product Tagger</span>
       <span class="crumb-sep">/</span>
-      <span class="crumb-current">{{ pageTitle() | transloco }}</span>
+      @if (pageTitleService.override(); as override) {
+        <span class="crumb-current">{{ override }}</span>
+      } @else {
+        <span class="crumb-current">{{ pageTitle() | transloco }}</span>
+      }
 
       <app-language-toggle class="header-lang" />
 

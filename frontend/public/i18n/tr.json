@@ -18,6 +18,19 @@
       "label": "Dil"
     }
   },
+  "common": {
+    "yes": "Evet",
+    "no": "Hayır"
+  },
+  "status": {
+    "uploaded": "Yüklendi",
+    "preprocessed": "İşlendi",
+    "tagging": "Etiketleniyor",
+    "pendingReview": "İnceleme bekliyor",
+    "approved": "Onaylandı",
+    "rejected": "Reddedildi",
+    "failed": "Etiketleme başarısız"
+  },
   "products": {
     "empty": {
       "title": "Henüz ürün yok",
@@ -29,6 +42,69 @@
     "placeholder": "Upload ekranı — tasarım bekleniyor."
   },
   "review": {
-    "placeholder": "Review kuyruğu — tasarım bekleniyor."
+    "placeholder": "Review kuyruğu — tasarım bekleniyor.",
+    "breadcrumb": "Review Kuyruğu",
+    "queuePosition": "{{current}} / {{total}}",
+    "suggestedAt": "Öneri {{relativeTime}} oluşturuldu",
+    "approvedBy": "{{name}} onayladı",
+    "details": {
+      "title": "Ayrıntılar",
+      "model": "Model",
+      "revision": "Revizyon",
+      "duration": "İşlem süresi",
+      "productId": "Ürün kimliği",
+      "copy": "Kimliği kopyala",
+      "copied": "Kopyalandı"
+    },
+    "category": {
+      "label": "Kategori",
+      "hint": "Kategori değiştirilirse özellik formu yeni kategorinin şemasıyla yeniden yüklenir; girilen değerler sıfırlanır."
+    },
+    "attributes": {
+      "title": "Özellikler",
+      "schemaMeta": "{{count}} alan · şema v{{version}}",
+      "lowConfidenceCount": "{{count}} düşük güven",
+      "lowConfidenceHint": "Düşük güven — kontrol edin",
+      "noSuggestion": "Öneri yok — seçin",
+      "noSuggestionTooltip": "Model bu alan için öneri üretmedi",
+      "addValue": "{{field}} ekle",
+      "manualFill": "elle doldurulacak"
+    },
+    "confidence": {
+      "high": "Yüksek güven",
+      "medium": "Orta güven",
+      "low": "Düşük güven"
+    },
+    "descriptions": {
+      "title": "Açıklamalar",
+      "tr": "Türkçe",
+      "en": "İngilizce",
+      "pendingNote": "Açıklamalar onaydan sonra otomatik üretilecek. Onayladığınızda TR ve EN metinler modele yazdırılır ve burada düzenlenebilir olur.",
+      "regenerate": "Yeniden üret",
+      "generating": "Açıklamalar üretiliyor…",
+      "autosave": "Düzenlemeleriniz otomatik kaydedilir"
+    },
+    "failed": {
+      "title": "Etiketleme başarısız",
+      "body": "Yapay zeka bu fotoğraftan geçerli bir öneri üretemedi. Alanları elle doldurabilir ya da tekrar deneyebilirsiniz.",
+      "retriedAt": "{{relativeTime}} denendi"
+    },
+    "actions": {
+      "approve": "Onayla",
+      "reject": "Reddet",
+      "retag": "Tekrar Etiketle",
+      "retry": "Tekrar Dene",
+      "approveBlocked": "Zorunlu alanlar boşken onaylanamaz",
+      "prev": "Önceki",
+      "next": "Sonraki",
+      "expandImage": "Görseli büyüt"
+    },
+    "meta": {
+      "uploadedAt": "{{date}} yüklendi",
+      "fileInfo": "{{size}} · {{format}}"
+    },
+    "validation": {
+      "required": "Bu alan zorunlu"
+    }
   }
 }

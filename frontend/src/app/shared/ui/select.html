@@ -1,0 +1,13 @@
+<div class="select-wrap">
+  <select [disabled]="disabled()" (change)="onSelect($event)">
+    @if (placeholder(); as text) {
+      <option value="" [selected]="value() === null">{{ text }}</option>
+    }
+    @for (option of options(); track option.value) {
+      <option [value]="option.value" [selected]="value() === option.value">
+        {{ option.label }}
+      </option>
+    }
+  </select>
+  <svg lucideChevronDown [size]="14" [strokeWidth]="1.9" class="chevron"></svg>
+</div>

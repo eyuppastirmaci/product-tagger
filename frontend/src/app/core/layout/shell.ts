@@ -8,6 +8,7 @@ import { AuthService } from '../state/auth.service';
 import { ReviewStore } from '../state/review-store';
 import { ThemeService } from '../theme/theme.service';
 import { LanguageToggle } from './language-toggle';
+import { PageTitleService } from './page-title.service';
 
 @Component({
   selector: 'app-shell',
@@ -33,6 +34,7 @@ export class Shell {
   protected readonly theme = inject(ThemeService);
   protected readonly auth = inject(AuthService);
   protected readonly reviewStore = inject(ReviewStore);
+  protected readonly pageTitleService = inject(PageTitleService);
 
   protected readonly userMenuOpen = signal(false);
 

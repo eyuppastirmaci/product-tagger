@@ -15,6 +15,10 @@ public record ReviewResponse(
         String status,
         String processedImagePath,
         String thumbnailPath,
+        String titleTr,
+        String titleEn,
+        String descriptionTr,
+        String descriptionEn,
         Instant createdAt,
         Proposal proposal) {
 
@@ -42,6 +46,10 @@ public record ReviewResponse(
                 product.getStatus().name(),
                 product.getImagePaths().getProcessed(),
                 product.getImagePaths().getThumbnail(),
+                product.getTitleTr(),
+                product.getTitleEn(),
+                product.getDescriptionTr(),
+                product.getDescriptionEn(),
                 product.getCreatedAt(),
                 latestAiProposal(product.getRevisions()));
     }

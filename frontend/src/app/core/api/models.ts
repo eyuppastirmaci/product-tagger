@@ -57,6 +57,10 @@ export interface ReviewResponse {
   status: ProductStatus;
   processedImagePath: string;
   thumbnailPath: string;
+  titleTr: string | null;
+  titleEn: string | null;
+  descriptionTr: string | null;
+  descriptionEn: string | null;
   createdAt: string;
   proposal: ReviewProposal | null;
 }
@@ -64,6 +68,13 @@ export interface ReviewResponse {
 export interface ApproveRequest {
   categoryCode: string;
   attributes: AttributeValues;
+}
+
+export interface UpdateContentRequest {
+  titleTr: string | null;
+  titleEn: string | null;
+  descriptionTr: string | null;
+  descriptionEn: string | null;
 }
 
 export interface CategoryTree {

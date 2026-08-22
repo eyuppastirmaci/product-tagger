@@ -1,0 +1,8 @@
+<button type="button"
+        role="switch"
+        [attr.aria-checked]="checked()"
+        [class.on]="checked()"
+        [disabled]="disabled()"
+        (click)="toggle()">
+  <span class="knob"></span>
+</button>

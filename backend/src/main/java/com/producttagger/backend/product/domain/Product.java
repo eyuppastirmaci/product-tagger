@@ -222,6 +222,34 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         notifyStatusChanged();
     }
 
+    /**
+     * Reviewer edits to the generated title/description texts.
+     */
+    public void updateGeneratedContent(String titleTr, String titleEn, String descriptionTr, String descriptionEn) {
+        requireStatus(ProductStatus.APPROVED);
+
+        this.titleTr = titleTr;
+        this.titleEn = titleEn;
+        this.descriptionTr = descriptionTr;
+        this.descriptionEn = descriptionEn;
+    }
+
+    /**
+     * Clears the generated texts and re-fires ProductApproved, so the async
+     * generation pipeline runs again.
+     */
+    public void requestContentRegeneration() {
+        requireStatus(ProductStatus.APPROVED);
+
+        this.titleTr = null;
+        this.titleEn = null;
+        this.descriptionTr = null;
+        this.descriptionEn = null;
+
+        registerEvent(new ProductApproved(id));
+        notifyStatusChanged();
+    }
+
     private void notifyStatusChanged() {
         registerEvent(new ProductStatusChanged(id, status, descriptionTr != null));
     }

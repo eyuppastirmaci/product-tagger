@@ -1,0 +1,8 @@
+<div class="lang-toggle" role="group" [attr.aria-label]="'shell.language.label' | transloco">
+  <button type="button"
+          [class.selected]="language.lang() === 'tr'"
+          (click)="language.set('tr')">TR</button>
+  <button type="button"
+          [class.selected]="language.lang() === 'en'"
+          (click)="language.set('en')">EN</button>
+</div>

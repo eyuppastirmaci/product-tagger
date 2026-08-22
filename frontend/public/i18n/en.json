@@ -18,6 +18,19 @@
       "label": "Language"
     }
   },
+  "common": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "status": {
+    "uploaded": "Uploaded",
+    "preprocessed": "Processed",
+    "tagging": "Tagging",
+    "pendingReview": "Pending review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "failed": "Tagging failed"
+  },
   "products": {
     "empty": {
       "title": "No products yet",
@@ -29,6 +42,69 @@
     "placeholder": "Upload screen — waiting for design."
   },
   "review": {
-    "placeholder": "Review queue — waiting for design."
+    "placeholder": "Review queue — waiting for design.",
+    "breadcrumb": "Review Queue",
+    "queuePosition": "{{current}} / {{total}}",
+    "suggestedAt": "Suggested {{relativeTime}}",
+    "approvedBy": "Approved by {{name}}",
+    "details": {
+      "title": "Details",
+      "model": "Model",
+      "revision": "Revision",
+      "duration": "Processing time",
+      "productId": "Product ID",
+      "copy": "Copy ID",
+      "copied": "Copied"
+    },
+    "category": {
+      "label": "Category",
+      "hint": "Changing the category reloads the attribute form with the new category's schema; entered values are reset."
+    },
+    "attributes": {
+      "title": "Attributes",
+      "schemaMeta": "{{count}} fields · schema v{{version}}",
+      "lowConfidenceCount": "{{count}} low confidence",
+      "lowConfidenceHint": "Low confidence — please check",
+      "noSuggestion": "No suggestion — choose",
+      "noSuggestionTooltip": "The model made no suggestion for this field",
+      "addValue": "Add {{field}}",
+      "manualFill": "to be filled manually"
+    },
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
+    "descriptions": {
+      "title": "Descriptions",
+      "tr": "Turkish",
+      "en": "English",
+      "pendingNote": "Descriptions are generated automatically after approval. Once you approve, the TR and EN texts are written by the model and become editable here.",
+      "regenerate": "Regenerate",
+      "generating": "Generating descriptions…",
+      "autosave": "Your edits are saved automatically"
+    },
+    "failed": {
+      "title": "Tagging failed",
+      "body": "The AI could not produce a valid suggestion from this photo. You can fill the fields manually or try again.",
+      "retriedAt": "Tried {{relativeTime}}"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "retag": "Retag",
+      "retry": "Try Again",
+      "approveBlocked": "Cannot approve while required fields are empty",
+      "prev": "Previous",
+      "next": "Next",
+      "expandImage": "Expand image"
+    },
+    "meta": {
+      "uploadedAt": "Uploaded {{date}}",
+      "fileInfo": "{{size}} · {{format}}"
+    },
+    "validation": {
+      "required": "This field is required"
+    }
   }
 }

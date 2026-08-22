@@ -8,6 +8,7 @@ import {
   ProductResponse,
   ProductStatus,
   ReviewResponse,
+  UpdateContentRequest,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -51,6 +52,14 @@ export class ProductApi {
 
   retag(id: string): Observable<ProductResponse> {
     return this.http.post<ProductResponse>(`${this.base}/${id}/retag`, null);
+  }
+
+  updateContent(id: string, content: UpdateContentRequest): Observable<ProductResponse> {
+    return this.http.patch<ProductResponse>(`${this.base}/${id}/content`, content);
+  }
+
+  regenerateContent(id: string): Observable<ProductResponse> {
+    return this.http.post<ProductResponse>(`${this.base}/${id}/content/regenerate`, null);
   }
 
   imageUrl(id: string, variant: ImageVariant = 'thumbnail'): string {
