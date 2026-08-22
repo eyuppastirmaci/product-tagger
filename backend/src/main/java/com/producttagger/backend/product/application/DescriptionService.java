@@ -1,7 +1,7 @@
 package com.producttagger.backend.product.application;
 
 import com.producttagger.backend.catalog.domain.Category;
-import com.producttagger.backend.product.application.DescriptionModelClient.Descriptions;
+import com.producttagger.backend.product.application.DescriptionModelClient.GeneratedContent;
 import com.producttagger.backend.product.domain.Product;
 import com.producttagger.backend.product.domain.ProductRepository;
 import com.producttagger.backend.product.domain.ProductStatus;
@@ -42,9 +42,9 @@ public class DescriptionService {
             return;
         }
 
-        Descriptions descriptions = model.generate(input.categoryNameEn(), input.categoryNameTr(), input.attributes());
+        GeneratedContent content = model.generate(input.categoryNameEn(), input.categoryNameTr(), input.attributes());
 
-        transaction.executeWithoutResult(tx -> attach(productId, descriptions));
+        transaction.executeWithoutResult(tx -> attach(productId, content));
     }
 
     private GenerationInput loadInput(UUID productId) {
@@ -66,18 +66,18 @@ public class DescriptionService {
         return new GenerationInput(category.getNameEn(), category.getNameTr(), product.getAttributes());
     }
 
-    private void attach(UUID productId, Descriptions descriptions) {
+    private void attach(UUID productId, GeneratedContent content) {
         Product product = products.findById(productId).orElse(null);
 
         if (product == null || product.getStatus() != ProductStatus.APPROVED || product.getDescriptionTr() != null) {
             return;
         }
 
-        product.attachDescriptions(descriptions.tr(), descriptions.en());
+        product.attachGeneratedContent(content.titleTr(), content.titleEn(), content.descriptionTr(), content.descriptionEn());
 
         products.save(product);
 
-        log.info("Descriptions generated for product {}", productId);
+        log.info("Title and descriptions generated for product {}", productId);
     }
 
     private record GenerationInput(String categoryNameEn, String categoryNameTr, Map<String, Object> attributes) {

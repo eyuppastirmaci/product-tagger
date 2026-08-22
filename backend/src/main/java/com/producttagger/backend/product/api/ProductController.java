@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,15 +41,18 @@ class ProductController {
     private final ReviewService reviewService;
     private final ProductRepository products;
     private final ImageStorage imageStorage;
+    private final ProductEventsBroadcaster broadcaster;
 
     ProductController(ProductUploadService uploadService,
                       ReviewService reviewService,
                       ProductRepository products,
-                      ImageStorage imageStorage) {
+                      ImageStorage imageStorage,
+                      ProductEventsBroadcaster broadcaster) {
         this.uploadService = uploadService;
         this.reviewService = reviewService;
         this.products = products;
         this.imageStorage = imageStorage;
+        this.broadcaster = broadcaster;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -90,6 +94,15 @@ class ProductController {
         return products.findByIdForReview(id)
                 .map(ReviewResponse::from)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+    }
+
+    @GetMapping("/{id}/events")
+    SseEmitter events(@PathVariable UUID id) {
+        Product product = products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+
+        return broadcaster.subscribe(id, new ProductEventsBroadcaster.StatusPayload(
+                product.getStatus().name(),
+                product.getDescriptionTr() != null));
     }
 
     @GetMapping("/{id}/image")

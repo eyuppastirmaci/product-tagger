@@ -22,6 +22,8 @@ export interface ProductResponse {
   originalImagePath: string;
   processedImagePath: string;
   thumbnailPath: string;
+  titleTr: string | null;
+  titleEn: string | null;
   descriptionTr: string | null;
   descriptionEn: string | null;
   createdAt: string;

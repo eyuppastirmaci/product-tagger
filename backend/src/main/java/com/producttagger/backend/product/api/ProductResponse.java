@@ -14,6 +14,8 @@ public record ProductResponse(
         String originalImagePath,
         String processedImagePath,
         String thumbnailPath,
+        String titleTr,
+        String titleEn,
         String descriptionTr,
         String descriptionEn,
         Instant createdAt) {
@@ -27,6 +29,8 @@ public record ProductResponse(
                 product.getImagePaths().getOriginal(),
                 product.getImagePaths().getProcessed(),
                 product.getImagePaths().getThumbnail(),
+                product.getTitleTr(),
+                product.getTitleEn(),
                 product.getDescriptionTr(),
                 product.getDescriptionEn(),
                 product.getCreatedAt());

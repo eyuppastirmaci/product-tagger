@@ -53,6 +53,12 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
     @Embedded
     private ImagePaths imagePaths;
 
+    @Column(name = "title_tr")
+    private String titleTr;
+
+    @Column(name = "title_en")
+    private String titleEn;
+
     @Column(name = "description_tr")
     private String descriptionTr;
 
@@ -92,6 +98,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         Product product = new Product(id, ImagePaths.ofOriginal(originalImagePath));
 
         product.registerEvent(new ProductUploaded(product.id));
+        product.notifyStatusChanged();
 
         return product;
     }
@@ -108,12 +115,15 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         this.status = ProductStatus.PREPROCESSED;
 
         registerEvent(new ProductReadyForTagging(id));
+        notifyStatusChanged();
     }
 
     public void startTagging() {
         requireStatus(ProductStatus.PREPROCESSED);
 
         this.status = ProductStatus.TAGGING;
+
+        notifyStatusChanged();
     }
 
     /**
@@ -133,6 +143,8 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         revisions.add(revision);
 
         this.status = ProductStatus.PENDING_REVIEW;
+
+        notifyStatusChanged();
 
         return revision;
     }
@@ -160,6 +172,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         this.status = ProductStatus.APPROVED;
 
         registerEvent(new ProductApproved(id));
+        notifyStatusChanged();
 
         return revision;
     }
@@ -168,6 +181,8 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         requireStatus(ProductStatus.PENDING_REVIEW);
 
         this.status = ProductStatus.REJECTED;
+
+        notifyStatusChanged();
     }
 
     /**
@@ -183,6 +198,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         this.status = ProductStatus.PREPROCESSED;
 
         registerEvent(new ProductReadyForTagging(id));
+        notifyStatusChanged();
     }
 
     public void markFailed() {
@@ -191,12 +207,23 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         }
 
         this.status = ProductStatus.FAILED;
+
+        notifyStatusChanged();
     }
 
-    public void attachDescriptions(String descriptionTr, String descriptionEn) {
+    public void attachGeneratedContent(String titleTr, String titleEn, String descriptionTr, String descriptionEn) {
         requireStatus(ProductStatus.APPROVED);
+
+        this.titleTr = titleTr;
+        this.titleEn = titleEn;
         this.descriptionTr = descriptionTr;
         this.descriptionEn = descriptionEn;
+
+        notifyStatusChanged();
+    }
+
+    private void notifyStatusChanged() {
+        registerEvent(new ProductStatusChanged(id, status, descriptionTr != null));
     }
 
     private int nextRevisionNo() {
@@ -238,6 +265,14 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
 
     public ImagePaths getImagePaths() {
         return imagePaths;
+    }
+
+    public String getTitleTr() {
+        return titleTr;
+    }
+
+    public String getTitleEn() {
+        return titleEn;
     }
 
     public String getDescriptionTr() {

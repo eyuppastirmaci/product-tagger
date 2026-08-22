@@ -14,10 +14,12 @@ import java.util.Map;
 class SpringAiDescriptionClient implements DescriptionModelClient {
 
     private static final String SYSTEM_PROMPT = """
-            You write concise e-commerce product descriptions. Use ONLY the given \
-            category and attributes; never invent details that are not listed \
-            (no sizes, prices, materials or features). Write 2-3 natural sentences \
-            per language in a friendly marketing tone, no bullet points.""";
+            You write concise e-commerce product copy. Use ONLY the given category \
+            and attributes; never invent details that are not listed (no sizes, \
+            prices, materials or features). Produce for each language: a short \
+            product title (max 60 characters, no trailing punctuation, e.g. \
+            "Acik Mavi Coupe Otomobil") and a description of 2-3 natural sentences \
+            in a friendly marketing tone, no bullet points.""";
 
     private final ChatClient chatClient;
     private final ModelOutputSanitizer sanitizer;
@@ -29,15 +31,16 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
     }
 
     @Override
-    public Descriptions generate(String categoryNameEn, String categoryNameTr, Map<String, Object> attributes) {
-        BeanOutputConverter<DescriptionsResponse> converter =
-                new BeanOutputConverter<>(DescriptionsResponse.class);
+    public GeneratedContent generate(String categoryNameEn, String categoryNameTr, Map<String, Object> attributes) {
+        BeanOutputConverter<GeneratedContentResponse> converter =
+                new BeanOutputConverter<>(GeneratedContentResponse.class);
 
         String prompt = """
                 Category: %s (Turkish: %s)
                 Attributes: %s
 
-                Write the product description in Turkish (descriptionTr) and in English (descriptionEn).
+                Write the product title and description in Turkish (titleTr, descriptionTr) \
+                and in English (titleEn, descriptionEn).
 
                 %s""".formatted(categoryNameEn, categoryNameTr, toJson(attributes), converter.getFormat());
 
@@ -47,9 +50,13 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
                 .call()
                 .chatResponse();
 
-        DescriptionsResponse descriptions = converter.convert(sanitizer.clean(response));
+        GeneratedContentResponse content = converter.convert(sanitizer.clean(response));
 
-        return new Descriptions(descriptions.descriptionTr(), descriptions.descriptionEn());
+        return new GeneratedContent(
+                content.titleTr(),
+                content.titleEn(),
+                content.descriptionTr(),
+                content.descriptionEn());
     }
 
     private String toJson(Map<String, Object> attributes) {
@@ -60,6 +67,6 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
         }
     }
 
-    record DescriptionsResponse(String descriptionTr, String descriptionEn) {
+    record GeneratedContentResponse(String titleTr, String titleEn, String descriptionTr, String descriptionEn) {
     }
 }
