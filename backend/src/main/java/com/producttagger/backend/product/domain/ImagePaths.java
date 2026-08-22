@@ -32,6 +32,15 @@ public class ImagePaths {
         return new ImagePaths(original, processed, thumbnail);
     }
 
+    // Exhaustive switch: adding a variant without a path is a compile error
+    public String pathFor(ImageVariant variant) {
+        return switch (variant) {
+            case ORIGINAL -> original;
+            case PROCESSED -> processed;
+            case THUMBNAIL -> thumbnail;
+        };
+    }
+
     public String getOriginal() {
         return original;
     }

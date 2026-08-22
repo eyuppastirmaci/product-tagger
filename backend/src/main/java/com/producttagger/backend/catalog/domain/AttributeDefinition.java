@@ -8,7 +8,7 @@ import java.util.List;
  */
 public record AttributeDefinition(
         String key,
-        String type,
+        AttributeType type,
         boolean required,
         boolean multi,
         List<String> values) {

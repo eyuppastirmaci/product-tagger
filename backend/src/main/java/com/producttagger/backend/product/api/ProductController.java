@@ -1,15 +1,19 @@
 package com.producttagger.backend.product.api;
 
+import com.producttagger.backend.product.application.ImageStorage;
 import com.producttagger.backend.product.application.ProductNotFoundException;
 import com.producttagger.backend.product.application.ProductUploadService;
 import com.producttagger.backend.product.application.ReviewService;
+import com.producttagger.backend.product.domain.ImageVariant;
 import com.producttagger.backend.product.domain.Product;
 import com.producttagger.backend.product.domain.ProductRepository;
 import com.producttagger.backend.product.domain.ProductStatus;
 import com.producttagger.backend.shared.api.PageResponse;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,11 +39,16 @@ class ProductController {
     private final ProductUploadService uploadService;
     private final ReviewService reviewService;
     private final ProductRepository products;
+    private final ImageStorage imageStorage;
 
-    ProductController(ProductUploadService uploadService, ReviewService reviewService, ProductRepository products) {
+    ProductController(ProductUploadService uploadService,
+                      ReviewService reviewService,
+                      ProductRepository products,
+                      ImageStorage imageStorage) {
         this.uploadService = uploadService;
         this.reviewService = reviewService;
         this.products = products;
+        this.imageStorage = imageStorage;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -80,6 +90,37 @@ class ProductController {
         return products.findByIdForReview(id)
                 .map(ReviewResponse::from)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+    }
+
+    @GetMapping("/{id}/image")
+    ResponseEntity<InputStreamResource> image(@PathVariable UUID id,
+                                              @RequestParam(defaultValue = "thumbnail") ImageVariant variant) {
+        Product product = products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+
+        String key = product.getImagePaths().pathFor(variant);
+
+        if (key == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(contentTypeOf(key))
+                // Stored images never change once written; let the browser cache them
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic())
+                .body(new InputStreamResource(imageStorage.load(key)));
+    }
+
+    // Only the original keeps its uploaded format; derived variants are always JPEG
+    private MediaType contentTypeOf(String key) {
+        if (key.endsWith(".png")) {
+            return MediaType.IMAGE_PNG;
+        }
+
+        if (key.endsWith(".webp")) {
+            return MediaType.parseMediaType("image/webp");
+        }
+
+        return MediaType.IMAGE_JPEG;
     }
 
     @PostMapping("/{id}/approve")

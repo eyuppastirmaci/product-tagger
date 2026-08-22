@@ -30,7 +30,7 @@ class AttributeSchemaPromptMapper {
         Map<String, Object> compact = new LinkedHashMap<>();
 
         compact.put("key", definition.key());
-        compact.put("type", definition.type());
+        compact.put("type", definition.type().jsonValue());
         compact.put("required", definition.required());
 
         if (definition.multi()) {

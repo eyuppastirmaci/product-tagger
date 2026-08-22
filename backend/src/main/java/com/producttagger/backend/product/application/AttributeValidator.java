@@ -46,21 +46,20 @@ public class AttributeValidator {
         }
     }
 
+    // Exhaustive switch: a new AttributeType without a rule is a compile error
     private void validateValue(AttributeDefinition definition, Object value, List<String> errors) {
         switch (definition.type()) {
-            case "enum" -> validateEnum(definition, value, errors);
-            case "boolean" -> {
+            case ENUM -> validateEnum(definition, value, errors);
+            case BOOLEAN -> {
                 if (!(value instanceof Boolean)) {
                     errors.add("attribute '%s' must be a boolean".formatted(definition.key()));
                 }
             }
-            case "text" -> {
+            case TEXT -> {
                 if (!(value instanceof String)) {
                     errors.add("attribute '%s' must be a string".formatted(definition.key()));
                 }
             }
-            default -> errors.add("attribute '%s' has unsupported type '%s'"
-                    .formatted(definition.key(), definition.type()));
         }
     }
 

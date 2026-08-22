@@ -90,7 +90,7 @@ public class CategorySchema {
 
         return new AttributeDefinition(
                 String.valueOf(attribute.get("key")),
-                String.valueOf(attribute.get("type")),
+                AttributeType.from(String.valueOf(attribute.get("type"))),
                 Boolean.TRUE.equals(attribute.get("required")),
                 Boolean.TRUE.equals(attribute.get("multi")),
                 List.copyOf(values));
