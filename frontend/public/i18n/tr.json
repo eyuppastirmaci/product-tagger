@@ -1,0 +1,34 @@
+{
+  "shell": {
+    "nav": {
+      "upload": "Yükle",
+      "products": "Ürünler",
+      "reviewQueue": "Review Kuyruğu"
+    },
+    "user": {
+      "profile": "Profil",
+      "settings": "Ayarlar",
+      "logout": "Çıkış"
+    },
+    "theme": {
+      "light": "Açık tema",
+      "dark": "Koyu tema"
+    },
+    "language": {
+      "label": "Dil"
+    }
+  },
+  "products": {
+    "empty": {
+      "title": "Henüz ürün yok",
+      "description": "Bir ürün fotoğrafı yükleyin; yapay zeka kategori ve özellikleri önersin.",
+      "action": "Ürün yükle"
+    }
+  },
+  "upload": {
+    "placeholder": "Upload ekranı — tasarım bekleniyor."
+  },
+  "review": {
+    "placeholder": "Review kuyruğu — tasarım bekleniyor."
+  }
+}

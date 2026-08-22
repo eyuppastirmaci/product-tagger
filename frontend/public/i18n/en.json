@@ -1,0 +1,34 @@
+{
+  "shell": {
+    "nav": {
+      "upload": "Upload",
+      "products": "Products",
+      "reviewQueue": "Review Queue"
+    },
+    "user": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Sign out"
+    },
+    "theme": {
+      "light": "Light theme",
+      "dark": "Dark theme"
+    },
+    "language": {
+      "label": "Language"
+    }
+  },
+  "products": {
+    "empty": {
+      "title": "No products yet",
+      "description": "Upload a product photo and let AI suggest the category and attributes.",
+      "action": "Upload product"
+    }
+  },
+  "upload": {
+    "placeholder": "Upload screen — waiting for design."
+  },
+  "review": {
+    "placeholder": "Review queue — waiting for design."
+  }
+}

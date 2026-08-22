@@ -1,0 +1,91 @@
+/* Design tokens — the app shell handoff is the source of truth. */
+
+:root {
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+:root,
+[data-theme='light'] {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-text: #09090b;
+  --color-text-muted: #71717a;
+  --color-text-dim: #a1a1aa;
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #eef2ff;
+  --color-hover: rgba(9, 9, 11, 0.045);
+  --color-focus: rgba(79, 70, 229, 0.28);
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-info: #2563eb;
+  --color-info-soft: #dbeafe;
+  --brand-a: #6366f1;
+  --brand-b: #a855f7;
+}
+
+[data-theme='dark'] {
+  --color-bg: #09090b;
+  --color-surface: #111113;
+  --color-surface-alt: #18181b;
+  --color-border: #27272a;
+  --color-border-strong: #3f3f46;
+  --color-text: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-text-dim: #71717a;
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-on-primary: #09090b;
+  --color-primary-soft: rgba(129, 140, 248, 0.12);
+  --color-hover: rgba(250, 250, 250, 0.055);
+  --color-focus: rgba(129, 140, 248, 0.35);
+  --color-success: #4ade80;
+  --color-success-soft: rgba(74, 222, 128, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.12);
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.12);
+  --color-info: #60a5fa;
+  --color-info-soft: rgba(96, 165, 250, 0.12);
+  --brand-a: #818cf8;
+  --brand-b: #c084fc;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus);
+}
