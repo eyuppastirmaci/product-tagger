@@ -6,5 +6,6 @@ public enum ProductStatus {
     TAGGING,
     PENDING_REVIEW,
     APPROVED,
+    REJECTED,
     FAILED
 }

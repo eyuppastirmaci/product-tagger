@@ -1,5 +1,6 @@
 package com.producttagger.backend.product.infrastructure.messaging;
 
+import com.producttagger.backend.product.domain.ProductApproved;
 import com.producttagger.backend.product.domain.ProductReadyForTagging;
 import com.producttagger.backend.product.domain.ProductUploaded;
 import com.producttagger.backend.shared.outbox.OutboxEvent;
@@ -32,6 +33,11 @@ class ProductEventsOutboxWriter {
     @EventListener
     void on(ProductReadyForTagging event) {
         outbox.save(OutboxEvent.of(ProductMessaging.READY_FOR_TAGGING, event.productId(), payloadFor(event.productId())));
+    }
+
+    @EventListener
+    void on(ProductApproved event) {
+        outbox.save(OutboxEvent.of(ProductMessaging.APPROVED, event.productId(), payloadFor(event.productId())));
     }
 
     private Map<String, Object> payloadFor(UUID productId) {

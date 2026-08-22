@@ -24,6 +24,15 @@ public class CatalogService {
         this.schemas = schemas;
     }
 
+    public List<Category> allCategories() {
+        return categories.findAll();
+    }
+
+    public Category categoryByCode(String code) {
+        return categories.findByCode(code)
+                .orElseThrow(() -> new CategoryNotFoundException(code));
+    }
+
     public List<Category> rootCategories() {
         return categories.findByParentIsNull();
     }

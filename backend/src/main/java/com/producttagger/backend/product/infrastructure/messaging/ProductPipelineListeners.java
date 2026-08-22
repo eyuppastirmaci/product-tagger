@@ -1,5 +1,6 @@
 package com.producttagger.backend.product.infrastructure.messaging;
 
+import com.producttagger.backend.product.application.DescriptionService;
 import com.producttagger.backend.product.application.TaggingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,11 @@ class ProductPipelineListeners {
 
     private final TaggingService taggingService;
 
-    ProductPipelineListeners(TaggingService taggingService) {
+    private final DescriptionService descriptionService;
+
+    ProductPipelineListeners(TaggingService taggingService, DescriptionService descriptionService) {
         this.taggingService = taggingService;
+        this.descriptionService = descriptionService;
     }
 
     @RabbitListener(queues = ProductMessaging.READY_FOR_TAGGING)
@@ -34,6 +38,18 @@ class ProductPipelineListeners {
     @RabbitListener(queues = ProductMessaging.READY_FOR_TAGGING_DLQ)
     void onTaggingDeadLetter(ProductMessage message) {
         taggingService.markTaggingFailed(UUID.fromString(message.productId()));
+    }
+
+    @RabbitListener(queues = ProductMessaging.APPROVED)
+    void onApproved(ProductMessage message) {
+        descriptionService.generateFor(UUID.fromString(message.productId()));
+    }
+
+    // Descriptions are an addition to the approval, not a condition of it: the
+    // product stays APPROVED, only the failure is logged
+    @RabbitListener(queues = ProductMessaging.APPROVED_DLQ)
+    void onDescriptionDeadLetter(ProductMessage message) {
+        log.warn("Description generation permanently failed for product {}", message.productId());
     }
 
     record ProductMessage(String productId) {

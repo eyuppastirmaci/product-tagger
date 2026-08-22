@@ -67,4 +67,26 @@ class ProductQueuesConfig {
         return BindingBuilder.bind(readyForTaggingDlq).to(deadLetterExchange)
                 .with(ProductMessaging.READY_FOR_TAGGING);
     }
+
+    @Bean
+    Queue approvedQueue() {
+        return QueueBuilder.durable(ProductMessaging.APPROVED)
+                .deadLetterExchange(Messaging.DEAD_LETTER_EXCHANGE)
+                .build();
+    }
+
+    @Bean
+    Queue approvedDlq() {
+        return QueueBuilder.durable(ProductMessaging.APPROVED_DLQ).build();
+    }
+
+    @Bean
+    Binding approvedBinding(Queue approvedQueue, TopicExchange productTaggerExchange) {
+        return BindingBuilder.bind(approvedQueue).to(productTaggerExchange).with(ProductMessaging.APPROVED);
+    }
+
+    @Bean
+    Binding approvedDlqBinding(Queue approvedDlq, TopicExchange deadLetterExchange) {
+        return BindingBuilder.bind(approvedDlq).to(deadLetterExchange).with(ProductMessaging.APPROVED);
+    }
 }

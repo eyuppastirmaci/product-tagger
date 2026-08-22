@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -29,6 +32,25 @@ class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     ProblemDetail conflict(IllegalStateException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    // Malformed request body (e.g. invalid JSON) - 400
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ProblemDetail malformedBody(HttpMessageNotReadableException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
+    }
+
+    // Path/query parameter of the wrong type (e.g. invalid UUID) - 400
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    ProblemDetail typeMismatch(MethodArgumentTypeMismatchException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                "Invalid value for parameter '%s'".formatted(e.getName()));
+    }
+
+    // Unknown URL path - 404
+    @ExceptionHandler(NoResourceFoundException.class)
+    ProblemDetail noResource(NoResourceFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found");
     }
 
     // Multipart upload over the configured size limit - 413

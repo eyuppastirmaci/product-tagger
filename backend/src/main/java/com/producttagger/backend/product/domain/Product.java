@@ -159,7 +159,30 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         this.attributes = finalAttributes;
         this.status = ProductStatus.APPROVED;
 
+        registerEvent(new ProductApproved(id));
+
         return revision;
+    }
+
+    public void reject() {
+        requireStatus(ProductStatus.PENDING_REVIEW);
+
+        this.status = ProductStatus.REJECTED;
+    }
+
+    /**
+     * Transition {@code REJECTED/FAILED -> PREPROCESSED}: re-enters the tagging
+     * pipeline with the existing images; each retag yields a new AI revision.
+     */
+    public void requestRetagging() {
+        if (status != ProductStatus.REJECTED && status != ProductStatus.FAILED) {
+            throw new IllegalStateException(
+                    "Expected product %s to be in status REJECTED or FAILED but was %s".formatted(id, status));
+        }
+
+        this.status = ProductStatus.PREPROCESSED;
+
+        registerEvent(new ProductReadyForTagging(id));
     }
 
     public void markFailed() {

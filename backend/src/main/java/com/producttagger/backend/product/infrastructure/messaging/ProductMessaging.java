@@ -14,6 +14,10 @@ public final class ProductMessaging {
 
     public static final String READY_FOR_TAGGING_DLQ = READY_FOR_TAGGING + ".dlq";
 
+    public static final String APPROVED = "product.approved";
+
+    public static final String APPROVED_DLQ = APPROVED + ".dlq";
+
     private ProductMessaging() {
     }
 }
