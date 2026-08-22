@@ -16,6 +16,10 @@ export class AuthApi {
     return this.http.post<UserResponse>(`${this.base}/login`, request);
   }
 
+  refresh(): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.base}/refresh`, null);
+  }
+
   logout(): Observable<void> {
     return this.http.post<void>(`${this.base}/logout`, null);
   }

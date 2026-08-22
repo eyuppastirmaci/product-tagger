@@ -36,12 +36,13 @@ class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(csrfHandler)
-                        // Pre-login requests cannot carry a CSRF header yet
-                        .ignoringRequestMatchers("/api/auth/login", "/api/auth/register"))
+                        // Pre-login requests cannot carry a CSRF header yet; refresh
+                        // authenticates itself with the single-use rotating token
+                        .ignoringRequestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(entryPoint))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

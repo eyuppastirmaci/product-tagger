@@ -13,6 +13,10 @@ import java.time.Duration;
 public class AuthCookies {
 
     public static final String TOKEN_COOKIE = "pt-token";
+    public static final String REFRESH_COOKIE = "pt-refresh";
+
+    // The refresh cookie only ever travels to the auth endpoints
+    private static final String REFRESH_PATH = "/api/auth";
 
     private final JwtProperties properties;
 
@@ -21,18 +25,26 @@ public class AuthCookies {
     }
 
     public ResponseCookie session(String token) {
-        return builder(token).maxAge(properties.expiry()).build();
+        return builder(TOKEN_COOKIE, token, "/").maxAge(properties.expiry()).build();
+    }
+
+    public ResponseCookie refresh(String token) {
+        return builder(REFRESH_COOKIE, token, REFRESH_PATH).maxAge(properties.refreshExpiry()).build();
     }
 
     public ResponseCookie expired() {
-        return builder("").maxAge(Duration.ZERO).build();
+        return builder(TOKEN_COOKIE, "", "/").maxAge(Duration.ZERO).build();
     }
 
-    private ResponseCookie.ResponseCookieBuilder builder(String value) {
-        return ResponseCookie.from(TOKEN_COOKIE, value)
+    public ResponseCookie expiredRefresh() {
+        return builder(REFRESH_COOKIE, "", REFRESH_PATH).maxAge(Duration.ZERO).build();
+    }
+
+    private ResponseCookie.ResponseCookieBuilder builder(String name, String value, String path) {
+        return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(properties.secureCookie())
                 .sameSite("Lax")
-                .path("/");
+                .path(path);
     }
 }

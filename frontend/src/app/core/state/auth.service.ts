@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, firstValueFrom, map } from 'rxjs';
+import { Observable, finalize, firstValueFrom, map, shareReplay } from 'rxjs';
 import { AuthApi } from '../api/auth-api.service';
 import { UserResponse } from '../api/models';
 
@@ -16,15 +16,39 @@ export class AuthService {
 
   readonly user = signal<CurrentUser | null>(null);
 
-  /** Resolves the session cookie into a user before the first render. */
+  private refreshInFlight: Observable<CurrentUser> | null = null;
+
+  /**
+   * Resolves the session before the first render; an expired access token is
+   * silently exchanged via the refresh cookie.
+   */
   async init(): Promise<void> {
     try {
       const me = await firstValueFrom(this.api.me());
 
       this.user.set(this.toCurrentUser(me));
     } catch {
-      this.user.set(null);
+      try {
+        await firstValueFrom(this.refreshOnce());
+      } catch {
+        this.user.set(null);
+      }
     }
+  }
+
+  /** Single-flight refresh: concurrent 401s share one rotation request. */
+  refreshOnce(): Observable<CurrentUser> {
+    if (!this.refreshInFlight) {
+      this.refreshInFlight = this.api.refresh().pipe(
+        map((user) => this.setUser(user)),
+        finalize(() => {
+          this.refreshInFlight = null;
+        }),
+        shareReplay(1),
+      );
+    }
+
+    return this.refreshInFlight;
   }
 
   login(email: string, password: string): Observable<CurrentUser> {

@@ -52,7 +52,9 @@ management:
 auth:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef0123456789abcdef}
-    expiry: 24h
+    # Short-lived access token; sessions are extended by refresh rotation
+    expiry: 15m
+    refresh-expiry: 14d
     # Set true behind HTTPS so the cookie only travels over TLS
     secure-cookie: false
 
