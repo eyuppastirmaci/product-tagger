@@ -32,14 +32,55 @@
     "failed": "Tagging failed"
   },
   "products": {
+    "columns": {
+      "product": "Product",
+      "status": "Status",
+      "confidence": "Confidence",
+      "uploadedAt": "Uploaded"
+    },
+    "noTitle": "No title generated",
+    "noCategory": "No category assigned",
+    "filters": {
+      "all": "All",
+      "pendingReview": "Pending review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "failed": "Failed",
+      "clear": "Clear filters"
+    },
+    "pagination": {
+      "range": "{{from}}–{{to}} / {{total}}",
+      "page": "{{page}} / {{pages}}",
+      "prev": "Previous",
+      "next": "Next",
+      "single": "Single page"
+    },
     "empty": {
       "title": "No products yet",
-      "description": "Upload a product photo and let AI suggest the category and attributes.",
-      "action": "Upload product"
+      "body": "Upload a product photo and let AI suggest the category and attributes.",
+      "cta": "Upload product",
+      "filteredTitle": "No products match this filter"
+    },
+    "row": {
+      "retry": "Try Again",
+      "open": "Review {{title}}"
+    }
+  },
+  "queue": {
+    "summary": "{{count}} products waiting for your review",
+    "oldest": "oldest uploaded {{relativeTime}}",
+    "empty": {
+      "title": "Queue is clear!",
+      "body": "All products are reviewed. New suggestions will appear here when ready.",
+      "cta": "Go to all products"
     }
   },
   "upload": {
-    "placeholder": "Upload screen — waiting for design."
+    "dropTitle": "Drag images here",
+    "dropHint": "or click to browse · JPEG, PNG, WebP",
+    "uploading": "Uploading…",
+    "uploadFailed": "Upload failed",
+    "review": "Review"
   },
   "review": {
     "placeholder": "Review queue — waiting for design.",

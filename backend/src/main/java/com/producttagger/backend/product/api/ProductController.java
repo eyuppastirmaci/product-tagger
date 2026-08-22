@@ -30,9 +30,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -83,6 +85,20 @@ class ProductController {
         return PageResponse.from(result, ProductResponse::from);
     }
 
+    @GetMapping("/counts")
+    ProductCountsResponse counts() {
+        Map<String, Long> byStatus = products.countByStatus().stream()
+                .collect(Collectors.toMap(row -> row.getStatus().name(), ProductRepository.StatusCount::getTotal));
+
+        long total = byStatus.values().stream().mapToLong(Long::longValue).sum();
+
+        Instant oldestPending = products
+                .oldestCreatedAt(List.of(ProductStatus.PENDING_REVIEW, ProductStatus.FAILED))
+                .orElse(null);
+
+        return new ProductCountsResponse(byStatus, total, oldestPending);
+    }
+
     @GetMapping("/{id}")
     ProductResponse get(@PathVariable UUID id) {
         return products.findByIdWithCategory(id)
@@ -108,10 +124,10 @@ class ProductController {
 
     @GetMapping("/{id}/image")
     ResponseEntity<InputStreamResource> image(@PathVariable UUID id,
-                                              @RequestParam(defaultValue = "thumbnail") ImageVariant variant) {
+                                              @RequestParam(defaultValue = "thumbnail") String variant) {
         Product product = products.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
-        String key = product.getImagePaths().pathFor(variant);
+        String key = product.getImagePaths().pathFor(ImageVariant.from(variant));
 
         if (key == null) {
             return ResponseEntity.notFound().build();

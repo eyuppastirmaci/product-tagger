@@ -1,1 +1,40 @@
-<p class="placeholder">{{ 'upload.placeholder' | transloco }}</p>
+<div class="upload-screen">
+  <label class="dropzone"
+         [class.drag-over]="dragOver()"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave()"
+         (drop)="onDrop($event)">
+    <input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onBrowse($event)" />
+    <svg lucideUpload [size]="22" [strokeWidth]="1.6"></svg>
+    <strong>{{ 'upload.dropTitle' | transloco }}</strong>
+    <span>{{ 'upload.dropHint' | transloco }}</span>
+  </label>
+
+  @if (manager.items().length > 0) {
+    <ul class="upload-list">
+      @for (item of manager.items(); track item.localId) {
+        <li>
+          <span class="file-name">{{ item.fileName }}</span>
+
+          @switch (item.status) {
+            @case ('UPLOADING') {
+              <span class="local-status">{{ 'upload.uploading' | transloco }}</span>
+            }
+            @case ('ERROR') {
+              <span class="local-status error">{{ 'upload.uploadFailed' | transloco }}</span>
+            }
+            @default {
+              <pt-status-badge [status]="item.status" />
+            }
+          }
+
+          @if (item.productId && (item.status === 'PENDING_REVIEW' || item.status === 'FAILED')) {
+            <a class="review-link" [routerLink]="['/review', item.productId]">
+              {{ 'upload.review' | transloco }}
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

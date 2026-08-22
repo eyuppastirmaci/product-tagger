@@ -5,6 +5,7 @@ import {
   ApproveRequest,
   ImageVariant,
   PageResponse,
+  ProductCounts,
   ProductResponse,
   ProductStatus,
   ReviewResponse,
@@ -26,6 +27,10 @@ export class ProductApi {
     }
 
     return this.http.get<PageResponse<ProductResponse>>(this.base, { params });
+  }
+
+  counts(): Observable<ProductCounts> {
+    return this.http.get<ProductCounts>(`${this.base}/counts`);
   }
 
   get(id: string): Observable<ProductResponse> {

@@ -32,14 +32,55 @@
     "failed": "Etiketleme başarısız"
   },
   "products": {
+    "columns": {
+      "product": "Ürün",
+      "status": "Durum",
+      "confidence": "Güven",
+      "uploadedAt": "Yüklenme"
+    },
+    "noTitle": "Başlık üretilmedi",
+    "noCategory": "Kategori atanmadı",
+    "filters": {
+      "all": "Tümü",
+      "pendingReview": "İnceleme bekliyor",
+      "approved": "Onaylandı",
+      "rejected": "Reddedildi",
+      "failed": "Başarısız",
+      "clear": "Filtreleri temizle"
+    },
+    "pagination": {
+      "range": "{{from}}–{{to}} / {{total}}",
+      "page": "{{page}} / {{pages}}",
+      "prev": "Önceki",
+      "next": "Sonraki",
+      "single": "Tek sayfa"
+    },
     "empty": {
       "title": "Henüz ürün yok",
-      "description": "Bir ürün fotoğrafı yükleyin; yapay zeka kategori ve özellikleri önersin.",
-      "action": "Ürün yükle"
+      "body": "Bir ürün fotoğrafı yükleyin; yapay zeka kategori ve özellikleri önersin.",
+      "cta": "Ürün yükle",
+      "filteredTitle": "Bu filtreye uyan ürün yok"
+    },
+    "row": {
+      "retry": "Tekrar Dene",
+      "open": "{{title}} ürününü incele"
+    }
+  },
+  "queue": {
+    "summary": "{{count}} ürün incelemeni bekliyor",
+    "oldest": "en eski {{relativeTime}} yüklendi",
+    "empty": {
+      "title": "Kuyruk temiz!",
+      "body": "Tüm ürünler incelendi. Yeni bir öneri hazır olduğunda burada görünecek.",
+      "cta": "Tüm ürünlere git"
     }
   },
   "upload": {
-    "placeholder": "Upload ekranı — tasarım bekleniyor."
+    "dropTitle": "Görselleri buraya sürükleyin",
+    "dropHint": "ya da seçmek için tıklayın · JPEG, PNG, WebP",
+    "uploading": "Yükleniyor…",
+    "uploadFailed": "Yükleme başarısız",
+    "review": "İncele"
   },
   "review": {
     "placeholder": "Review kuyruğu — tasarım bekleniyor.",

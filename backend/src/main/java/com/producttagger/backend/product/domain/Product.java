@@ -53,6 +53,10 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
     @Embedded
     private ImagePaths imagePaths;
 
+    // Lowest attribute confidence of the latest AI proposal; drives list sorting cues
+    @Column(name = "min_confidence")
+    private Double minConfidence;
+
     @Column(name = "title_tr")
     private String titleTr;
 
@@ -143,10 +147,26 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         revisions.add(revision);
 
         this.status = ProductStatus.PENDING_REVIEW;
+        this.minConfidence = lowestAttributeConfidence(confidences);
 
         notifyStatusChanged();
 
         return revision;
+    }
+
+    // Category descent levels are excluded: the list shows field confidence only
+    private static Double lowestAttributeConfidence(Map<String, Object> confidences) {
+        if (confidences == null) {
+            return null;
+        }
+
+        return confidences.entrySet().stream()
+                .filter(entry -> !entry.getKey().startsWith("category."))
+                .map(Map.Entry::getValue)
+                .filter(value -> value instanceof Number)
+                .map(value -> ((Number) value).doubleValue())
+                .min(Double::compareTo)
+                .orElse(null);
     }
 
     /**
@@ -293,6 +313,10 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
 
     public ImagePaths getImagePaths() {
         return imagePaths;
+    }
+
+    public Double getMinConfidence() {
+        return minConfidence;
     }
 
     public String getTitleTr() {

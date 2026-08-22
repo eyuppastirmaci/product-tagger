@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { LucideImage, LucidePlus } from '@lucide/angular';
+import { ProductTable } from './product-table';
 
 @Component({
   selector: 'app-products-page',
-  imports: [RouterLink, TranslocoPipe, LucideImage, LucidePlus],
+  imports: [ProductTable],
   templateUrl: './products-page.html',
   styleUrl: './products-page.scss',
 })

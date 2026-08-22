@@ -9,7 +9,10 @@ const UNITS: Array<{ unit: Intl.RelativeTimeFormatUnit; seconds: number }> = [
   { unit: 'minute', seconds: 60 },
 ];
 
-// e.g. "3 minutes ago" in the active locale; anything under a minute reads as "now".
+const ABSOLUTE_CUTOFF_SECONDS = 7 * 86_400;
+
+// e.g. "3 minutes ago" in the active locale; anything under a minute reads as
+// "now", anything older than 7 days falls back to an absolute date.
 @Pipe({ name: 'relativeTime' })
 export class RelativeTimePipe implements PipeTransform {
   transform(value: string | Date | null | undefined, locale: string): string {
@@ -18,6 +21,15 @@ export class RelativeTimePipe implements PipeTransform {
     }
 
     const elapsedSeconds = (Date.now() - new Date(value).getTime()) / 1000;
+
+    if (elapsedSeconds >= ABSOLUTE_CUTOFF_SECONDS) {
+      return new Intl.DateTimeFormat(locale, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date(value));
+    }
+
     const formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
     for (const { unit, seconds } of UNITS) {

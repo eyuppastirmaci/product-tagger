@@ -1,0 +1,147 @@
+<div class="toolbar">
+  <div class="chips">
+    <button class="chip" type="button"
+            [class.selected]="!filtersActive()"
+            (click)="selectAll()">
+      {{ 'products.filters.all' | transloco }}
+      @if (counts(); as c) {
+        <span class="count">{{ c.total }}</span>
+      }
+    </button>
+    @for (option of filterOptions; track option.token) {
+      <button class="chip" type="button"
+              [class.selected]="isSelected(option.status)"
+              (click)="toggleStatus(option.status)">
+        {{ 'products.filters.' + option.token | transloco }}
+        <span class="count">{{ countOf(option.status) }}</span>
+      </button>
+    }
+  </div>
+  <a class="upload-button" routerLink="/upload">
+    <svg lucidePlus [size]="13" [strokeWidth]="2.2"></svg>
+    {{ 'products.empty.cta' | transloco }}
+  </a>
+</div>
+
+<div class="table-card">
+  <div class="table-head">
+    <span></span>
+    <span>{{ 'products.columns.product' | transloco }}</span>
+    <span>{{ 'products.columns.status' | transloco }}</span>
+    <span>{{ 'products.columns.confidence' | transloco }}</span>
+    <span>{{ 'products.columns.uploadedAt' | transloco }}</span>
+    <span></span>
+  </div>
+
+  <div class="table-body" [attr.aria-busy]="loading()">
+    @if (loading()) {
+      @for (row of skeletonRows; track $index) {
+        <div class="row skeleton" aria-hidden="true">
+          <div class="sk sk-thumb"></div>
+          <div class="sk-lines">
+            <div class="sk sk-title"></div>
+            <div class="sk sk-sub"></div>
+          </div>
+          <div class="sk sk-status"></div>
+          <div class="sk sk-confidence"></div>
+          <span></span>
+          <span></span>
+        </div>
+      }
+    } @else if (items().length === 0) {
+      <div class="empty">
+        @if (filtersActive() && emptyVariant() === 'products') {
+          <div class="icon-box">
+            <svg lucideImage [size]="19" [strokeWidth]="1.6"></svg>
+          </div>
+          <h2>{{ 'products.empty.filteredTitle' | transloco }}</h2>
+          <button class="ghost" type="button" (click)="clearFilters()">
+            {{ 'products.filters.clear' | transloco }}
+          </button>
+        } @else if (emptyVariant() === 'queue') {
+          <div class="icon-box success">
+            <svg lucideCircleCheckBig [size]="20" [strokeWidth]="1.8"></svg>
+          </div>
+          <h2>{{ 'queue.empty.title' | transloco }}</h2>
+          <p>{{ 'queue.empty.body' | transloco }}</p>
+          <a class="outline-button" routerLink="/products">
+            {{ 'queue.empty.cta' | transloco }}
+          </a>
+        } @else {
+          <div class="icon-box">
+            <svg lucideImage [size]="19" [strokeWidth]="1.6"></svg>
+          </div>
+          <h2>{{ 'products.empty.title' | transloco }}</h2>
+          <p>{{ 'products.empty.body' | transloco }}</p>
+          <a class="primary-button" routerLink="/upload">
+            <svg lucidePlus [size]="13" [strokeWidth]="2.2"></svg>
+            {{ 'products.empty.cta' | transloco }}
+          </a>
+        }
+      </div>
+    } @else {
+      @for (product of items(); track product.id) {
+        <div class="row" role="button" tabindex="0"
+             [attr.aria-label]="'products.row.open' | transloco: { title: titleOf(product) ?? product.id }"
+             (click)="openProduct(product.id)"
+             (keydown)="onRowKeydown($event, product.id)">
+          <img class="thumb" [src]="imageUrl(product)" alt="" loading="lazy" />
+          <div class="product-cell">
+            @if (titleOf(product); as title) {
+              <span class="title">{{ title }}</span>
+            } @else {
+              <span class="title dim">{{ 'products.noTitle' | transloco }}</span>
+            }
+            @if (categoryNameOf(product); as category) {
+              <span class="category">{{ category }}</span>
+            } @else {
+              <span class="category">{{ 'products.noCategory' | transloco }}</span>
+            }
+          </div>
+          <div class="status-cell">
+            <pt-status-badge [status]="product.status" />
+            @if (product.status === 'FAILED') {
+              <button class="retry" type="button"
+                      [attr.aria-label]="'products.row.retry' | transloco"
+                      (click)="retry($event, product.id)">
+                <svg lucideRotateCw [size]="13" [strokeWidth]="1.9"></svg>
+              </button>
+            }
+          </div>
+          <div>
+            <pt-confidence-badge [confidence]="product.minConfidence" />
+          </div>
+          <span class="uploaded">{{ product.createdAt | relativeTime: language.lang() }}</span>
+          <svg lucideChevronRight [size]="15" [strokeWidth]="1.9" class="row-chevron"></svg>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="pagination">
+    <span class="range">
+      {{ 'products.pagination.range' | transloco: { from: rangeFrom(), to: rangeTo(), total: total() } }}
+    </span>
+    @if (totalPages() > 1) {
+      <div class="pager">
+        <button type="button"
+                [disabled]="page() <= 1"
+                [attr.aria-label]="'products.pagination.prev' | transloco"
+                (click)="goToPage(page() - 1)">
+          <svg lucideChevronLeft [size]="14" [strokeWidth]="1.9"></svg>
+        </button>
+        <span class="page-info">
+          {{ 'products.pagination.page' | transloco: { page: page(), pages: totalPages() } }}
+        </span>
+        <button type="button"
+                [disabled]="page() >= totalPages()"
+                [attr.aria-label]="'products.pagination.next' | transloco"
+                (click)="goToPage(page() + 1)">
+          <svg lucideChevronRight [size]="14" [strokeWidth]="1.9"></svg>
+        </button>
+      </div>
+    } @else {
+      <span class="single-page">{{ 'products.pagination.single' | transloco }}</span>
+    }
+  </div>
+</div>

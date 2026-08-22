@@ -22,6 +22,7 @@ export interface ProductResponse {
   originalImagePath: string;
   processedImagePath: string;
   thumbnailPath: string;
+  minConfidence: number | null;
   titleTr: string | null;
   titleEn: string | null;
   descriptionTr: string | null;
@@ -68,6 +69,12 @@ export interface ReviewResponse {
 export interface ApproveRequest {
   categoryCode: string;
   attributes: AttributeValues;
+}
+
+export interface ProductCounts {
+  byStatus: Partial<Record<ProductStatus, number>>;
+  total: number;
+  oldestPendingCreatedAt: string | null;
 }
 
 export interface UpdateContentRequest {

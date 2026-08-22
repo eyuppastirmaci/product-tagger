@@ -1,1 +1,13 @@
-<p class="placeholder">{{ 'review.placeholder' | transloco }}</p>
+@if (queueCount() > 0) {
+  <div class="summary">
+    <svg lucideInbox [size]="15" [strokeWidth]="1.9"></svg>
+    <strong>{{ 'queue.summary' | transloco: { count: queueCount() } }}</strong>
+    @if (counts()?.oldestPendingCreatedAt; as oldest) {
+      <span class="oldest">
+        · {{ 'queue.oldest' | transloco: { relativeTime: oldest | relativeTime: language.lang() } }}
+      </span>
+    }
+  </div>
+}
+
+<app-product-table emptyVariant="queue" [defaultStatuses]="queueStatuses" />

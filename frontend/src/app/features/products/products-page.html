@@ -1,11 +1,1 @@
-<div class="empty-state">
-  <div class="icon-box">
-    <svg lucideImage [size]="19" [strokeWidth]="1.6"></svg>
-  </div>
-  <h2>{{ 'products.empty.title' | transloco }}</h2>
-  <p>{{ 'products.empty.description' | transloco }}</p>
-  <a class="primary-button" routerLink="/upload">
-    <svg lucidePlus [size]="13" [strokeWidth]="2.2"></svg>
-    {{ 'products.empty.action' | transloco }}
-  </a>
-</div>
+<app-product-table emptyVariant="products" />

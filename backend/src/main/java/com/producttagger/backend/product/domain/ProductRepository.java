@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +27,18 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @EntityGraph(attributePaths = "category")
     @Query("select p from Product p")
     Page<Product> findAllWithCategory(Pageable pageable);
+
+    @Query("select p.status as status, count(p) as total from Product p group by p.status")
+    List<StatusCount> countByStatus();
+
+    @Query("select min(p.createdAt) from Product p where p.status in :statuses")
+    Optional<Instant> oldestCreatedAt(Collection<ProductStatus> statuses);
+
+    interface StatusCount {
+        ProductStatus getStatus();
+
+        long getTotal();
+    }
 
     // Everything the review screen needs, eagerly fetched so mapping can happen
     // outside a transaction (open-in-view is off)

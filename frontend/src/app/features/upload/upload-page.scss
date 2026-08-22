@@ -1,4 +1,99 @@
-.placeholder {
-  font-size: 12.5px;
+:host {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+}
+
+.upload-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 36px 24px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 12px;
+  background: var(--color-surface);
   color: var(--color-text-dim);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+
+  &:hover,
+  &.drag-over {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  input {
+    display: none;
+  }
+
+  strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  span {
+    font-size: 11.5px;
+  }
+}
+
+.upload-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  overflow: hidden;
+
+  li {
+    height: 42px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    & + li {
+      border-top: 1px solid var(--color-border);
+    }
+  }
+}
+
+.file-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.local-status {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+
+  &.error {
+    color: var(--color-danger);
+  }
+}
+
+.review-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-primary-hover);
+  }
 }
