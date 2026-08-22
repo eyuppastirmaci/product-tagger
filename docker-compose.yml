@@ -1,0 +1,76 @@
+name: product-tagger
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: pt-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-product_tagger}
+      POSTGRES_USER: ${POSTGRES_USER:-pt}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pt}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pt} -d ${POSTGRES_DB:-product_tagger}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: pt-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-pt}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-pt}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: pt-minio
+    command: server /data --console-address ":9001"
+    environment:
+      # MinIO requires the root user to be at least 3 characters
+      MINIO_ROOT_USER: ${MINIO_USER:-pt-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-pt-password}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pt-ollama
+    profiles: ["local-ai"]
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list > /dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  minio-data:
+  ollama-data:

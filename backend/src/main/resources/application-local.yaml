@@ -1,0 +1,10 @@
+spring:
+  ai:
+    model:
+      chat: ollama
+      embedding: none
+    ollama:
+      base-url: http://localhost:${OLLAMA_PORT:11434}
+      chat:
+        options:
+          model: ${OLLAMA_MODEL:qwen3.5:4b}

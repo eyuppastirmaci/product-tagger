@@ -1,0 +1,11 @@
+spring:
+  ai:
+    model:
+      chat: openai
+      embedding: none
+    openai:
+      base-url: https://router.huggingface.co
+      api-key: ${HF_TOKEN:}
+      chat:
+        options:
+          model: ${HF_MODEL:Qwen/Qwen3.5-27B}:${HF_PROVIDER:novita}

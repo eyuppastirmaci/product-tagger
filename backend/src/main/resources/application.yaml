@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: backend
+
+  profiles:
+    default: hosted
+
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:product_tagger}
+    username: ${POSTGRES_USER:pt}
+    password: ${POSTGRES_PASSWORD:pt}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  rabbitmq:
+    host: localhost
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:pt}
+    password: ${RABBITMQ_PASSWORD:pt}
+    listener:
+      simple:
+        # One in-flight message per consumer bounds concurrent AI provider calls
+        prefetch: 1
+        # Failed messages go to the DLQ instead of being requeued forever
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          # Initial attempt + 2 retries = 3 attempts in total
+          max-retries: 2
+          initial-interval: 2s
+          multiplier: 2.0
+          max-interval: 30s
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+storage:
+  s3:
+    endpoint: http://localhost:${MINIO_PORT:9000}
+    access-key: ${MINIO_USER:pt-admin}
+    secret-key: ${MINIO_PASSWORD:pt-password}
+    bucket: ${MINIO_BUCKET:product-images}
