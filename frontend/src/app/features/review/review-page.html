@@ -81,7 +81,11 @@
         </div>
         <div class="status-row">
           <pt-status-badge [status]="r.status" />
-          @if (r.proposal; as proposal) {
+          @if (r.status === 'APPROVED' && r.approvedBy) {
+            <span class="suggested-at">
+              {{ 'review.approvedBy' | transloco: { name: r.approvedBy } }}
+            </span>
+          } @else if (r.proposal; as proposal) {
             <span class="suggested-at">
               {{ 'review.suggestedAt' | transloco: { relativeTime: proposal.createdAt | relativeTime: language.lang() } }}
             </span>

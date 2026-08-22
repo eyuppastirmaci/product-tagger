@@ -64,6 +64,9 @@ public class TagRevision {
     @Column(name = "final_attributes")
     private Map<String, Object> finalAttributes;
 
+    @Column(name = "approved_by", length = 128)
+    private String approvedBy;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -94,10 +97,12 @@ public class TagRevision {
     static TagRevision humanDecision(Product product,
                                      int revisionNo,
                                      Category finalCategory,
-                                     Map<String, Object> finalAttributes) {
+                                     Map<String, Object> finalAttributes,
+                                     String approvedBy) {
         TagRevision revision = new TagRevision(product, revisionNo, TagRevisionSource.HUMAN);
         revision.finalCategory = finalCategory;
         revision.finalAttributes = finalAttributes;
+        revision.approvedBy = approvedBy;
         return revision;
     }
 
@@ -139,6 +144,10 @@ public class TagRevision {
 
     public Map<String, Object> getFinalAttributes() {
         return finalAttributes;
+    }
+
+    public String getApprovedBy() {
+        return approvedBy;
     }
 
     public Instant getCreatedAt() {

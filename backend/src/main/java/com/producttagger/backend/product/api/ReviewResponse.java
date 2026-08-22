@@ -19,6 +19,7 @@ public record ReviewResponse(
         String titleEn,
         String descriptionTr,
         String descriptionEn,
+        String approvedBy,
         Instant createdAt,
         Proposal proposal) {
 
@@ -50,8 +51,17 @@ public record ReviewResponse(
                 product.getTitleEn(),
                 product.getDescriptionTr(),
                 product.getDescriptionEn(),
+                latestApprovedBy(product.getRevisions()),
                 product.getCreatedAt(),
                 latestAiProposal(product.getRevisions()));
+    }
+
+    private static String latestApprovedBy(List<TagRevision> revisions) {
+        return revisions.stream()
+                .filter(revision -> revision.getSource() == TagRevisionSource.HUMAN)
+                .reduce((first, second) -> second)
+                .map(TagRevision::getApprovedBy)
+                .orElse(null);
     }
 
     // A FAILED product may have no AI revision at all; the proposal is then null

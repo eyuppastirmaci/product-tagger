@@ -62,6 +62,7 @@ export interface ReviewResponse {
   titleEn: string | null;
   descriptionTr: string | null;
   descriptionEn: string | null;
+  approvedBy: string | null;
   createdAt: string;
   proposal: ReviewProposal | null;
 }
@@ -69,6 +70,23 @@ export interface ReviewResponse {
 export interface ApproveRequest {
   categoryCode: string;
   attributes: AttributeValues;
+}
+
+export interface UserResponse {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
 }
 
 export interface ProductCounts {

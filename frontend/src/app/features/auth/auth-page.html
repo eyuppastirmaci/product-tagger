@@ -1,0 +1,48 @@
+<div class="auth-screen">
+  <div class="corner">
+    <app-language-toggle />
+    <app-theme-toggle />
+  </div>
+
+  <div class="card">
+    <div class="brand">
+      <div class="logo-mark">
+        <img src="logo.svg" alt="" width="24" height="24" />
+      </div>
+      <span>Product Tagger</span>
+    </div>
+
+    <h1>{{ (isRegister() ? 'auth.registerTitle' : 'auth.loginTitle') | transloco }}</h1>
+
+    @if (error(); as errorKey) {
+      <div class="error-box">{{ errorKey | transloco }}</div>
+    }
+
+    <form (ngSubmit)="submit()">
+      @if (isRegister()) {
+        <label>{{ 'auth.name' | transloco }}</label>
+        <pt-text-input name="name" [ngModel]="name()" (ngModelChange)="name.set($event ?? '')" />
+      }
+
+      <label>{{ 'auth.email' | transloco }}</label>
+      <pt-text-input type="email" name="email" [ngModel]="email()" (ngModelChange)="email.set($event ?? '')" />
+
+      <label>{{ 'auth.password' | transloco }}</label>
+      <pt-text-input type="password" name="password" [ngModel]="password()" (ngModelChange)="password.set($event ?? '')" />
+
+      @if (isRegister()) {
+        <span class="hint">{{ 'auth.passwordHint' | transloco }}</span>
+      }
+
+      <button class="submit" type="submit" [disabled]="submitting()">
+        {{ (isRegister() ? 'auth.registerAction' : 'auth.loginAction') | transloco }}
+      </button>
+    </form>
+
+    @if (isRegister()) {
+      <a class="switch" routerLink="/login">{{ 'auth.switchToLogin' | transloco }}</a>
+    } @else {
+      <a class="switch" routerLink="/register">{{ 'auth.switchToRegister' | transloco }}</a>
+    }
+  </div>
+</div>

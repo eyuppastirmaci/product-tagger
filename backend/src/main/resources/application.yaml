@@ -1,3 +1,7 @@
+# Resolve X-Forwarded-* headers so getRemoteAddr() is correct behind nginx
+server:
+  forward-headers-strategy: framework
+
 spring:
   application:
     name: backend
@@ -44,6 +48,13 @@ management:
     web:
       exposure:
         include: health,info,metrics
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef0123456789abcdef}
+    expiry: 24h
+    # Set true behind HTTPS so the cookie only travels over TLS
+    secure-cookie: false
 
 storage:
   s3:

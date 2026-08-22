@@ -2,13 +2,14 @@ import { Component, HostListener, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { LucideChevronsUpDown, LucideInbox, LucideLayoutGrid, LucideMoon, LucideSun, LucideUpload } from '@lucide/angular';
+import { LucideChevronsUpDown, LucideInbox, LucideLayoutGrid, LucideUpload } from '@lucide/angular';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../state/auth.service';
 import { ReviewStore } from '../state/review-store';
 import { ThemeService } from '../theme/theme.service';
 import { LanguageToggle } from './language-toggle';
 import { PageTitleService } from './page-title.service';
+import { ThemeToggle } from './theme-toggle';
 
 @Component({
   selector: 'app-shell',
@@ -18,12 +19,11 @@ import { PageTitleService } from './page-title.service';
     RouterLinkActive,
     TranslocoPipe,
     LanguageToggle,
+    ThemeToggle,
     LucideUpload,
     LucideLayoutGrid,
     LucideInbox,
     LucideChevronsUpDown,
-    LucideSun,
-    LucideMoon,
   ],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
@@ -63,6 +63,10 @@ export class Shell {
   @HostListener('document:keydown.escape')
   protected closeOnEscape(): void {
     this.userMenuOpen.set(false);
+  }
+
+  protected logout(): void {
+    this.auth.logout().subscribe(() => this.router.navigateByUrl('/login'));
   }
 
   private deepestTitle(): string {

@@ -1,0 +1,14 @@
+<div class="theme-toggle" role="group" aria-label="Tema">
+  <button type="button"
+          [attr.aria-label]="'shell.theme.light' | transloco"
+          [class.selected]="theme.theme() === 'light'"
+          (click)="theme.set('light')">
+    <svg lucideSun [size]="13" [strokeWidth]="2"></svg>
+  </button>
+  <button type="button"
+          [attr.aria-label]="'shell.theme.dark' | transloco"
+          [class.selected]="theme.theme() === 'dark'"
+          (click)="theme.set('dark')">
+    <svg lucideMoon [size]="13" [strokeWidth]="2"></svg>
+  </button>
+</div>

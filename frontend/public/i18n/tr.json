@@ -22,6 +22,22 @@
     "yes": "Evet",
     "no": "Hayır"
   },
+  "auth": {
+    "loginTitle": "Giriş yap",
+    "registerTitle": "Kayıt ol",
+    "name": "Ad Soyad",
+    "email": "E-posta",
+    "password": "Şifre",
+    "passwordHint": "En az 8 karakter",
+    "loginAction": "Giriş yap",
+    "registerAction": "Kayıt ol",
+    "switchToRegister": "Hesabın yok mu? Kayıt ol",
+    "switchToLogin": "Zaten hesabın var mı? Giriş yap",
+    "invalidCredentials": "E-posta ya da şifre hatalı",
+    "emailTaken": "Bu e-posta zaten kayıtlı",
+    "rateLimited": "Çok fazla deneme yapıldı; biraz sonra tekrar deneyin",
+    "genericError": "Bir şeyler ters gitti; tekrar deneyin"
+  },
   "status": {
     "uploaded": "Yüklendi",
     "preprocessed": "İşlendi",

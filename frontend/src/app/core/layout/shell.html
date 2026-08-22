@@ -28,10 +28,10 @@
 
     <div class="user-row">
       <button class="user-trigger" type="button" (click)="toggleUserMenu($event)">
-        <span class="avatar">{{ auth.user().initials }}</span>
+        <span class="avatar">{{ auth.user()?.initials }}</span>
         <span class="user-meta">
-          <span class="user-name">{{ auth.user().name }}</span>
-          <span class="user-email">{{ auth.user().email }}</span>
+          <span class="user-name">{{ auth.user()?.name }}</span>
+          <span class="user-email">{{ auth.user()?.email }}</span>
         </span>
         <svg lucideChevronsUpDown [size]="14" class="chevron"></svg>
       </button>
@@ -40,7 +40,7 @@
         <div class="user-menu">
           <button type="button">{{ 'shell.user.profile' | transloco }}</button>
           <button type="button">{{ 'shell.user.settings' | transloco }}</button>
-          <button type="button">{{ 'shell.user.logout' | transloco }}</button>
+          <button type="button" (click)="logout()">{{ 'shell.user.logout' | transloco }}</button>
         </div>
       }
     </div>
@@ -57,21 +57,7 @@
       }
 
       <app-language-toggle class="header-lang" />
-
-      <div class="theme-toggle" role="group" aria-label="Tema">
-        <button type="button"
-                [attr.aria-label]="'shell.theme.light' | transloco"
-                [class.selected]="theme.theme() === 'light'"
-                (click)="theme.set('light')">
-          <svg lucideSun [size]="13" [strokeWidth]="2"></svg>
-        </button>
-        <button type="button"
-                [attr.aria-label]="'shell.theme.dark' | transloco"
-                [class.selected]="theme.theme() === 'dark'"
-                (click)="theme.set('dark')">
-          <svg lucideMoon [size]="13" [strokeWidth]="2"></svg>
-        </button>
-      </div>
+      <app-theme-toggle />
     </header>
 
     <div class="content">

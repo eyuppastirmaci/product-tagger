@@ -173,7 +173,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
      * Transition {@code PENDING_REVIEW -> APPROVED}: records the reviewer's
      * decision and makes it the product's current category and attributes.
      */
-    public TagRevision approve(Category finalCategory, Map<String, Object> finalAttributes) {
+    public TagRevision approve(Category finalCategory, Map<String, Object> finalAttributes, String approvedBy) {
         requireStatus(ProductStatus.PENDING_REVIEW);
 
         // Products may only be assigned to leaf categories, never to tree nodes
@@ -183,7 +183,7 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
         }
 
         TagRevision revision = TagRevision.humanDecision(
-                this, nextRevisionNo(), finalCategory, finalAttributes);
+                this, nextRevisionNo(), finalCategory, finalAttributes, approvedBy);
 
         revisions.add(revision);
 

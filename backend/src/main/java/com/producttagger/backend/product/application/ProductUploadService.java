@@ -38,6 +38,10 @@ public class ProductUploadService {
      */
     @Transactional
     public Product upload(byte[] content, String contentType) {
+        if (content.length == 0) {
+            throw new IllegalArgumentException("Uploaded file is empty");
+        }
+
         String extension = ALLOWED_CONTENT_TYPES.get(contentType);
         if (extension == null) {
             throw new UnsupportedImageTypeException(contentType);

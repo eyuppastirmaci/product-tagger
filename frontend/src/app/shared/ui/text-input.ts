@@ -11,6 +11,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrl: './text-input.scss',
 })
 export class TextInput implements ControlValueAccessor {
+  readonly type = input<'text' | 'email' | 'password'>('text');
   readonly placeholder = input<string>('');
 
   protected readonly value = signal<string>('');

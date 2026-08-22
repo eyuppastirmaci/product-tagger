@@ -2,10 +2,12 @@ package com.producttagger.backend.product.application;
 
 import com.producttagger.backend.catalog.application.CatalogService;
 import com.producttagger.backend.catalog.domain.Category;
+import com.producttagger.backend.shared.security.AuthenticatedUser;
 import com.producttagger.backend.product.domain.Product;
 import com.producttagger.backend.product.domain.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,8 @@ public class ReviewService {
      */
     @Transactional
     public Product approve(UUID productId, String categoryCode, Map<String, Object> attributes) {
+        Map<String, Object> safeAttributes = attributes == null ? Map.of() : attributes;
+
         Product product = findProduct(productId);
 
         Category category = catalog.categoryByCode(categoryCode);
@@ -41,9 +45,9 @@ public class ReviewService {
             throw new IllegalArgumentException("Category '%s' is not a leaf category".formatted(categoryCode));
         }
 
-        validator.validate(attributes, catalog.activeSchemaOf(category.getId()).attributeDefinitions());
+        validator.validate(safeAttributes, catalog.activeSchemaOf(category.getId()).attributeDefinitions());
 
-        product.approve(category, attributes);
+        product.approve(category, safeAttributes, currentReviewerName());
 
         products.save(product);
 
@@ -105,6 +109,14 @@ public class ReviewService {
         log.info("Content regeneration requested for product {}", productId);
 
         return product;
+    }
+
+    private String currentReviewerName() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return authentication != null && authentication.getPrincipal() instanceof AuthenticatedUser user
+                ? user.name()
+                : null;
     }
 
     private Product findProduct(UUID productId) {
