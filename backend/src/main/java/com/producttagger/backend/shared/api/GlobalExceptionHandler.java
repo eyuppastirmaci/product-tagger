@@ -2,6 +2,7 @@ package com.producttagger.backend.shared.api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -47,6 +48,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     ProblemDetail conflict(IllegalStateException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    // Optimistic locking conflicts (someone else changed the row first) - 409
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ProblemDetail concurrentModification(OptimisticLockingFailureException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "The product was modified by someone else; reload and try again");
     }
 
     // Bean Validation failures on request bodies - 400 with per-field details

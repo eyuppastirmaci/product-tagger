@@ -1,5 +1,7 @@
 package com.producttagger.backend.shared.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,8 @@ import java.time.Duration;
 @Component
 public class AuthCookies {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthCookies.class);
+
     public static final String TOKEN_COOKIE = "pt-token";
     public static final String REFRESH_COOKIE = "pt-refresh";
 
@@ -22,6 +26,10 @@ public class AuthCookies {
 
     AuthCookies(JwtProperties properties) {
         this.properties = properties;
+
+        if (!properties.secureCookie()) {
+            log.warn("Auth cookies are issued without the Secure flag; set SECURE_COOKIE=true behind HTTPS");
+        }
     }
 
     public ResponseCookie session(String token) {

@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -38,6 +39,12 @@ public class Product extends AbstractAggregateRoot<Product> implements Persistab
 
     @Id
     private UUID id;
+
+    // Optimistic locking: concurrent review decisions (e.g. approve vs reject)
+    // fail fast at commit instead of silently overwriting each other
+    @Version
+    @Column(nullable = false)
+    private long version;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)

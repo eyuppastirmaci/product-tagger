@@ -372,6 +372,24 @@
 
 /* --- Action bar --- */
 
+.conflict-banner {
+  margin: 0 20px 10px;
+  border-radius: 8px;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  padding: 9px 11px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
 .action-bar {
   flex-shrink: 0;
   padding: 12px 20px;

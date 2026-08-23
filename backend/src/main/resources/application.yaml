@@ -32,6 +32,12 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:pt}
     password: ${RABBITMQ_PASSWORD:pt}
+    # Publisher confirms gate the outbox relay: a row is only marked published
+    # after the broker acked the message; mandatory+returns catch unroutables
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
     listener:
       simple:
         # One in-flight message per consumer bounds concurrent AI provider calls
@@ -59,12 +65,14 @@ management:
 
 auth:
   jwt:
-    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef0123456789abcdef}
+    # No fallback on purpose: a missing secret must fail the boot, not silently
+    # sign tokens with a known value. The local profile carries a dev default.
+    secret: ${JWT_SECRET:}
     # Short-lived access token; sessions are extended by refresh rotation
     expiry: 15m
     refresh-expiry: 14d
     # Set true behind HTTPS so the cookie only travels over TLS
-    secure-cookie: false
+    secure-cookie: ${SECURE_COOKIE:false}
 
 storage:
   s3:

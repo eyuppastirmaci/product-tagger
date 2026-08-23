@@ -23,6 +23,7 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-product-images}
       OLLAMA_BASE_URL: http://ollama:11434
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      SECURE_COOKIE: ${SECURE_COOKIE:-false}
       HF_TOKEN: ${HF_TOKEN:-}
       # hosted (Hugging Face router) or local (Ollama, needs the local-ai profile)
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-hosted}

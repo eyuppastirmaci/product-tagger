@@ -23,11 +23,15 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
 
     private final ChatClient chatClient;
     private final ModelOutputSanitizer sanitizer;
+    private final ModelOutputNormalizer normalizer;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    SpringAiDescriptionClient(ChatClient.Builder chatClientBuilder, ModelOutputSanitizer sanitizer) {
+    SpringAiDescriptionClient(ChatClient.Builder chatClientBuilder,
+                              ModelOutputSanitizer sanitizer,
+                              ModelOutputNormalizer normalizer) {
         this.chatClient = chatClientBuilder.build();
         this.sanitizer = sanitizer;
+        this.normalizer = normalizer;
     }
 
     @Override
@@ -52,11 +56,25 @@ class SpringAiDescriptionClient implements DescriptionModelClient {
 
         GeneratedContentResponse content = converter.convert(sanitizer.clean(response));
 
+        // Descriptions are the whole point of this call: an empty generation
+        // must fail loudly so retry/DLQ kicks in instead of storing nothing
+        if (isBlank(content.descriptionTr()) && isBlank(content.descriptionEn())) {
+            throw new IllegalStateException("Model returned no descriptions");
+        }
+
         return new GeneratedContent(
-                content.titleTr(),
-                content.titleEn(),
-                content.descriptionTr(),
-                content.descriptionEn());
+                normalizer.title(content.titleTr()),
+                normalizer.title(content.titleEn()),
+                blankToNull(content.descriptionTr()),
+                blankToNull(content.descriptionEn()));
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static String blankToNull(String value) {
+        return isBlank(value) ? null : value.trim();
     }
 
     private String toJson(Map<String, Object> attributes) {

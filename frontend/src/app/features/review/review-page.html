@@ -178,6 +178,13 @@
         </div>
       </div>
 
+      @if (conflict()) {
+        <div class="conflict-banner" role="alert">
+          <svg lucideInfo [size]="14" [strokeWidth]="1.8"></svg>
+          <span>{{ 'review.conflict' | transloco }}</span>
+        </div>
+      }
+
       <footer class="action-bar">
         <button class="approve" type="button"
                 [disabled]="!canAct() || !selectedCategory() || submitting()"

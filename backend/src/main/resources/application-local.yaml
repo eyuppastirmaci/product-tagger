@@ -1,3 +1,9 @@
+# The dev secret lives only in this opt-in profile; the default (hosted)
+# profile refuses to boot without a real JWT_SECRET
+auth:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef0123456789abcdef}
+
 spring:
   ai:
     model:

@@ -13,7 +13,8 @@ import {
   LucideSparkles,
   LucideX,
 } from '@lucide/angular';
-import { Subscription, map } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { EMPTY, Subject, Subscription, catchError, map, switchMap } from 'rxjs';
 import { CatalogApi } from '../../core/api/catalog-api.service';
 import {
   AttributeValues,
@@ -98,6 +99,13 @@ export class ReviewPage implements OnDestroy {
   protected readonly descriptionTr = signal<string | null>(null);
   protected readonly descriptionEn = signal<string | null>(null);
   protected readonly generating = signal(false);
+  protected readonly conflict = signal(false);
+
+  // Out-of-order responses: review and schema requests funnel through
+  // switchMap pipelines, so a late response for a previous product or
+  // category is cancelled instead of overwriting newer state
+  private readonly reviewLoads$ = new Subject<string>();
+  private readonly schemaLoads$ = new Subject<string>();
 
   // Proposal values wait here until the proposed category's schema has loaded
   private pendingInitialValues: AttributeValues | null = null;
@@ -111,6 +119,20 @@ export class ReviewPage implements OnDestroy {
 
   constructor() {
     this.catalog.tree().subscribe((tree) => this.leafCategories.set(this.flattenLeaves(tree)));
+
+    this.reviewLoads$
+      .pipe(
+        switchMap((id) => this.api.review(id).pipe(catchError(() => EMPTY))),
+        takeUntilDestroyed(),
+      )
+      .subscribe((review) => this.applyReview(review));
+
+    this.schemaLoads$
+      .pipe(
+        switchMap((code) => this.catalog.schema(code).pipe(catchError(() => EMPTY))),
+        takeUntilDestroyed(),
+      )
+      .subscribe((schema) => this.applySchema(schema));
 
     effect(() => {
       const id = this.productId();
@@ -263,6 +285,7 @@ export class ReviewPage implements OnDestroy {
     }
 
     this.submitting.set(true);
+    this.conflict.set(false);
 
     this.api.approve(id, { categoryCode: category, attributes: this.cleanedValues() }).subscribe({
       next: () => {
@@ -273,7 +296,10 @@ export class ReviewPage implements OnDestroy {
         this.load(id);
         this.watchDescriptions(id);
       },
-      error: () => this.submitting.set(false),
+      error: (error: HttpErrorResponse) => {
+        this.submitting.set(false);
+        this.handleConflict(error);
+      },
     });
   }
 
@@ -305,7 +331,12 @@ export class ReviewPage implements OnDestroy {
     const id = this.productId();
 
     if (id) {
-      this.api.reject(id).subscribe(() => this.load(id));
+      this.conflict.set(false);
+
+      this.api.reject(id).subscribe({
+        next: () => this.load(id),
+        error: (error: HttpErrorResponse) => this.handleConflict(error),
+      });
     }
   }
 
@@ -313,7 +344,27 @@ export class ReviewPage implements OnDestroy {
     const id = this.productId();
 
     if (id) {
-      this.api.retag(id).subscribe(() => this.load(id));
+      this.conflict.set(false);
+
+      this.api.retag(id).subscribe({
+        next: () => this.load(id),
+        error: (error: HttpErrorResponse) => this.handleConflict(error),
+      });
+    }
+  }
+
+  /** A 409 means another reviewer beat us to a decision: flag it and reload. */
+  private handleConflict(error: HttpErrorResponse): void {
+    if (error.status !== 409) {
+      return;
+    }
+
+    this.conflict.set(true);
+
+    const id = this.productId();
+
+    if (id) {
+      this.load(id);
     }
   }
 
@@ -373,37 +424,38 @@ export class ReviewPage implements OnDestroy {
   }
 
   private load(id: string): void {
-    this.api.review(id).subscribe((review) => {
-      this.review.set(review);
-      this.errors.set({});
-      this.descriptionTr.set(review.descriptionTr);
-      this.descriptionEn.set(review.descriptionEn);
-
-      if (review.descriptionTr != null) {
-        this.generating.set(false);
-      }
-
-      const proposedCode = review.proposal?.proposedCategory?.code ?? null;
-
-      this.selectedCategory.set(proposedCode);
-      this.pendingInitialValues = review.proposal?.attributes ?? null;
-
-      // Same category as the loaded schema: swap the values in place so the
-      // form does not unmount and flicker on reloads (e.g. after a retag)
-      if (proposedCode && proposedCode === this.schema()?.categoryCode) {
-        this.values.set(this.pendingInitialValues ?? {});
-        this.pendingInitialValues = null;
-      } else {
-        this.values.set({});
-        this.schema.set(null);
-
-        if (proposedCode) {
-          this.loadSchema(proposedCode);
-        }
-      }
-    });
-
+    this.reviewLoads$.next(id);
     this.loadImageHeaders(id);
+  }
+
+  private applyReview(review: ReviewResponse): void {
+    this.review.set(review);
+    this.errors.set({});
+    this.descriptionTr.set(review.descriptionTr);
+    this.descriptionEn.set(review.descriptionEn);
+
+    if (review.descriptionTr != null) {
+      this.generating.set(false);
+    }
+
+    const proposedCode = review.proposal?.proposedCategory?.code ?? null;
+
+    this.selectedCategory.set(proposedCode);
+    this.pendingInitialValues = review.proposal?.attributes ?? null;
+
+    // Same category as the loaded schema: swap the values in place so the
+    // form does not unmount and flicker on reloads (e.g. after a retag)
+    if (proposedCode && proposedCode === this.schema()?.categoryCode) {
+      this.values.set(this.pendingInitialValues ?? {});
+      this.pendingInitialValues = null;
+    } else {
+      this.values.set({});
+      this.schema.set(null);
+
+      if (proposedCode) {
+        this.loadSchema(proposedCode);
+      }
+    }
   }
 
   // Debounced PATCH so every keystroke does not hit the API
@@ -461,14 +513,16 @@ export class ReviewPage implements OnDestroy {
   }
 
   private loadSchema(code: string): void {
-    this.catalog.schema(code).subscribe((schema) => {
-      this.schema.set(schema);
+    this.schemaLoads$.next(code);
+  }
 
-      if (this.pendingInitialValues && this.selectedCategory() === code) {
-        this.values.set(this.pendingInitialValues);
-        this.pendingInitialValues = null;
-      }
-    });
+  private applySchema(schema: CategorySchemaResponse): void {
+    this.schema.set(schema);
+
+    if (this.pendingInitialValues && this.selectedCategory() === schema.categoryCode) {
+      this.values.set(this.pendingInitialValues);
+      this.pendingInitialValues = null;
+    }
   }
 
   /** Required fields must have a value; all violations are marked at once. */

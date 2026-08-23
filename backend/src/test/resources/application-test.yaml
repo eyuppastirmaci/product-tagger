@@ -1,0 +1,18 @@
+# Test profile: containers provide Postgres/RabbitMQ connections; the AI model
+# is configured but never called (tests keep products out of the TAGGING path)
+auth:
+  jwt:
+    secret: test-only-secret-0123456789abcdef0123456789abcdef
+
+spring:
+  ai:
+    model:
+      chat: openai
+      embedding: none
+    openai:
+      # Dead endpoint: an accidental model call fails instantly instead of
+      # reaching out to the network
+      base-url: http://localhost:1
+      api-key: test-key
+      chat:
+        model: test-model

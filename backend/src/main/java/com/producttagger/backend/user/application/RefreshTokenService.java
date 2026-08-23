@@ -51,10 +51,16 @@ public class RefreshTokenService {
     // noRollbackFor keeps the revoke-all update when the reuse branch throws
     @Transactional(noRollbackFor = InvalidRefreshTokenException.class)
     public Rotation rotate(String rawToken) {
-        RefreshToken token = tokens.findByTokenHash(hash(rawToken))
+        String tokenHash = hash(rawToken);
+
+        RefreshToken token = tokens.findByTokenHash(tokenHash)
                 .orElseThrow(InvalidRefreshTokenException::new);
 
-        if (token.isRevoked()) {
+        // Atomic claim: concurrent rotations of the same token race on this
+        // update, and everyone but the single winner lands in the reuse branch
+        int claimed = tokens.revokeIfActive(tokenHash, Instant.now());
+
+        if (claimed == 0) {
             log.warn("Refresh token reuse detected for user {}; revoking all sessions", token.getUser().getId());
 
             tokens.revokeAllForUser(token.getUser().getId(), Instant.now());
@@ -65,8 +71,6 @@ public class RefreshTokenService {
         if (token.isExpired()) {
             throw new InvalidRefreshTokenException();
         }
-
-        token.revoke();
 
         User user = token.getUser();
         String newRawToken = randomToken();

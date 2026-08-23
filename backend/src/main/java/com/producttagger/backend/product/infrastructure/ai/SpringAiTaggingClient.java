@@ -33,13 +33,16 @@ class SpringAiTaggingClient implements TaggingModelClient {
 
     private final ChatClient chatClient;
     private final ModelOutputSanitizer sanitizer;
+    private final ModelOutputNormalizer normalizer;
     private final AttributeSchemaPromptMapper schemaMapper;
 
     SpringAiTaggingClient(ChatClient.Builder chatClientBuilder,
                           ModelOutputSanitizer sanitizer,
+                          ModelOutputNormalizer normalizer,
                           AttributeSchemaPromptMapper schemaMapper) {
         this.chatClient = chatClientBuilder.build();
         this.sanitizer = sanitizer;
+        this.normalizer = normalizer;
         this.schemaMapper = schemaMapper;
     }
 
@@ -60,7 +63,7 @@ class SpringAiTaggingClient implements TaggingModelClient {
 
         return new CategoryChoice(
                 choice.category(),
-                choice.confidence() == null ? 0.0 : choice.confidence(),
+                normalizer.confidence(choice.confidence()),
                 response.getMetadata().getModel());
     }
 
@@ -78,9 +81,9 @@ class SpringAiTaggingClient implements TaggingModelClient {
 
         return new AttributeExtraction(
                 extraction.attributes() == null ? Map.of() : extraction.attributes(),
-                extraction.confidences() == null ? Map.of() : extraction.confidences(),
-                extraction.titleTr(),
-                extraction.titleEn(),
+                normalizer.confidences(extraction.confidences()),
+                normalizer.title(extraction.titleTr()),
+                normalizer.title(extraction.titleEn()),
                 response.getMetadata().getModel());
     }
 
