@@ -71,3 +71,7 @@ docker compose -f docker-compose.dev.yml up -d
 
 - **Backend:** run the Spring Boot app from your IDE (profile `hosted` or `local`); it connects to the containers on localhost.
 - **Frontend:** `npm start` in `frontend/` — the dev server proxies `/api` to `localhost:8080`.
+
+## License
+
+[MIT](LICENSE)
